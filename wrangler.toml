@@ -1,0 +1,19 @@
+# Cloudflare Pages configuration for Next.js
+# This file controls the build environment and runtime
+
+name = "liberian-chinese-society"
+type = "javascript"
+
+# Specify Node.js compatibility
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Build configuration
+[env.production]
+routes = [
+  { pattern = "/*", zone_name = "liberiachinese.com" }
+]
+
+# Functions configuration (if using Cloudflare Functions for API routes)
+[functions]
+directory = "functions"

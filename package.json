@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Bilingual website for Liberian Chinese Society",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
+  "packageManager": "npm@9",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
