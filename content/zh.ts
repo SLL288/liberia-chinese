@@ -200,13 +200,11 @@ export const zh = {
     join_now: '立即加入',
     already_member: '已经是会员？',
     sign_in: '登录',
-    member_benefits_list: [
-      '独家活动访问权',
-      '社区交流机会',
-      '时事通讯和公告',
-      '会员目录列表',
-      '特别折扣',
-    ],
+    member_benefits_1: '独家活动访问权',
+    member_benefits_2: '社区交流机会',
+    member_benefits_3: '时事通讯和公告',
+    member_benefits_4: '会员目录列表',
+    member_benefits_5: '特别折扣',
   },
 
   // Footer

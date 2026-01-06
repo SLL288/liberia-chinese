@@ -200,13 +200,11 @@ export const en = {
     join_now: 'Join Now',
     already_member: 'Already a member?',
     sign_in: 'Sign In',
-    member_benefits_list: [
-      'Access to exclusive events',
-      'Community networking opportunities',
-      'Newsletter and announcements',
-      'Member directory listing',
-      'Special discounts',
-    ],
+    member_benefits_1: 'Access to exclusive events',
+    member_benefits_2: 'Community networking opportunities',
+    member_benefits_3: 'Newsletter and announcements',
+    member_benefits_4: 'Member directory listing',
+    member_benefits_5: 'Special discounts',
   },
 
   // Footer
