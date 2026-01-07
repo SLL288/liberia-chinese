@@ -15,8 +15,7 @@ export default async function PostDetailPage({
 }) {
   const { locale, id } = await params;
   const t = await getTranslations();
-  type PostItem = Awaited<ReturnType<typeof getPostById>>;
-  const post: PostItem = await getPostById(id);
+  const post = await getPostById(id);
 
   if (!post) {
     notFound();
@@ -52,7 +51,7 @@ export default async function PostDetailPage({
                 No images
               </div>
             ) : (
-              post.images.map((image: PostItem['images'][number]) => (
+              post.images.map((image) => (
                 <div key={image.id} className="overflow-hidden rounded-2xl border border-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={image.url} alt={post.title} className="h-64 w-full object-cover" />
