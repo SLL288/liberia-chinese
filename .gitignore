@@ -1,6 +1,7 @@
 .env.local
 .env.example
 .next/
+.next/cache/
 node_modules/
 dist/
 build/
