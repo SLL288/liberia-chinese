@@ -7,7 +7,8 @@ type PromotionTableProps = {
 };
 
 export async function PromotionTable({ locale }: PromotionTableProps) {
-  const plans = await getPricingPlans();
+  type PricingPlan = Awaited<ReturnType<typeof getPricingPlans>>[number];
+  const plans: PricingPlan[] = await getPricingPlans();
   if (plans.length === 0) {
     return null;
   }
