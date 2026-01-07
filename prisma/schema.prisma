@@ -7,51 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  MODERATOR
-  ADMIN
-}
-
-enum PostStatus {
-  DRAFT
-  PENDING
-  ACTIVE
-  EXPIRED
-  BANNED
-}
-
-enum BannerPosition {
-  HOME_TOP
-  HOME_SIDE
-  CATEGORY_TOP
-  POST_SIDE
-}
-
-enum ReportStatus {
-  PENDING
-  REVIEWING
-  RESOLVED
-  REJECTED
-}
-
-enum OrderStatus {
-  PENDING
-  PAID
-  FAILED
-}
-
-enum PromotionProduct {
-  TOP
-  FEATURED
-  URGENT
-}
-
 model User {
   id        String   @id @default(cuid())
   email     String?  @unique
   name      String?
-  role      Role     @default(USER)
+  role      String   @default("USER")
   wechat    String?
   whatsapp  String?
   phone     String?
@@ -90,7 +50,7 @@ model Post {
   currency     String     @default("USD")
   city         String?
   region       String?
-  status       PostStatus @default(PENDING)
+  status       String     @default("PENDING")
   isTop        Boolean    @default(false)
   isFeatured   Boolean    @default(false)
   isUrgent     Boolean    @default(false)
@@ -119,7 +79,7 @@ model PostImage {
 
 model Banner {
   id        String         @id @default(cuid())
-  position  BannerPosition
+  position  String
   imageUrl  String
   linkUrl   String?
   startAt   DateTime?
@@ -136,7 +96,7 @@ model Report {
   reporterUserId String?
   reason         String
   detail         String?
-  status         ReportStatus @default(PENDING)
+  status         String       @default("PENDING")
   createdAt      DateTime     @default(now())
 
   post     Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -147,10 +107,10 @@ model Order {
   id          String            @id @default(cuid())
   userId      String
   postId      String?
-  product     PromotionProduct
+  product     String
   amount      Decimal
   currency    String            @default("USD")
-  status      OrderStatus       @default(PENDING)
+  status      String            @default("PENDING")
   provider    String?
   providerRef String?
   createdAt   DateTime          @default(now())
@@ -161,7 +121,7 @@ model Order {
 
 model PricingPlan {
   id           String            @id @default(cuid())
-  product      PromotionProduct
+  product      String
   price        Decimal
   currency     String            @default("USD")
   durationDays Int               @default(7)

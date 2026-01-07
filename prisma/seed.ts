@@ -1,4 +1,4 @@
-import { PrismaClient, PromotionProduct } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -108,9 +108,9 @@ async function main() {
 
     await prisma.pricingPlan.createMany({
       data: [
-        { product: PromotionProduct.TOP, price: 15, currency: 'USD', durationDays: 7 },
-        { product: PromotionProduct.FEATURED, price: 10, currency: 'USD', durationDays: 7 },
-        { product: PromotionProduct.URGENT, price: 5, currency: 'USD', durationDays: 3 },
+        { product: 'TOP', price: 15, currency: 'USD', durationDays: 7 },
+        { product: 'FEATURED', price: 10, currency: 'USD', durationDays: 7 },
+        { product: 'URGENT', price: 5, currency: 'USD', durationDays: 3 },
       ],
       skipDuplicates: true,
     });
