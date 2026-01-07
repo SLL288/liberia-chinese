@@ -103,7 +103,6 @@ async function main() {
           weight: 8,
         },
       ],
-      skipDuplicates: true,
     });
 
     await prisma.pricingPlan.createMany({
@@ -112,7 +111,6 @@ async function main() {
         { product: 'FEATURED', price: 10, currency: 'USD', durationDays: 7 },
         { product: 'URGENT', price: 5, currency: 'USD', durationDays: 3 },
       ],
-      skipDuplicates: true,
     });
 
     await prisma.auditLog.create({
