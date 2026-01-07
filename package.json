@@ -9,7 +9,7 @@
   "packageManager": "npm@9",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && rm -rf .next/cache .next/server",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
