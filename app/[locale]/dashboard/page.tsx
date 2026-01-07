@@ -28,7 +28,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     );
   }
 
-  const posts = await getUserPosts(session.user.id);
+  type UserPost = Awaited<ReturnType<typeof getUserPosts>>[number];
+  const posts: UserPost[] = await getUserPosts(session.user.id);
 
   return (
     <div className="container-shell space-y-8 py-10">
