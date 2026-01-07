@@ -1,4 +1,3 @@
-import type { Prisma } from '@prisma/client';
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
 import { PostCard } from '@/components/PostCard';
@@ -14,9 +13,7 @@ export default async function BusinessDirectoryPage({
   const t = await getTranslations();
   const category = await prisma.category.findUnique({ where: { slug: 'business' } });
 
-  type PostWithRelations = Prisma.PostGetPayload<{
-    include: { category: true; images: true; user: true };
-  }>;
+  type PostWithRelations = Awaited<ReturnType<typeof prisma.post.findMany>>[number];
 
   const posts: PostWithRelations[] = category
     ? await prisma.post.findMany({
