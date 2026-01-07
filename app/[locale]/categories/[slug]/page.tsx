@@ -21,7 +21,9 @@ export default async function CategoryPage({
     notFound();
   }
 
-  const posts = await prisma.post.findMany({
+  type PostWithRelations = Awaited<ReturnType<typeof prisma.post.findMany>>[number];
+
+  const posts: PostWithRelations[] = await prisma.post.findMany({
     where: { status: 'ACTIVE', categoryId: category.id },
     orderBy: { createdAt: 'desc' },
     include: { category: true, images: true, user: true },
