@@ -18,6 +18,8 @@ build/
 *~
 .env
 .env.production
+dev.db
+dev.db-journal
 public/sitemap.xml
 public/robots.txt
 coverage/

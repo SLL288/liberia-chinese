@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum PostStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  EXPIRED
+  BANNED
+}
+
+enum BannerPosition {
+  HOME_TOP
+  HOME_SIDE
+  CATEGORY_TOP
+  POST_SIDE
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum PromotionProduct {
+  TOP
+  FEATURED
+  URGENT
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  name      String?
+  role      Role     @default(USER)
+  wechat    String?
+  whatsapp  String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts     Post[]
+  accounts  Account[]
+  sessions  Session[]
+  reports   Report[]
+  orders    Order[]
+  auditLogs AuditLog[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  nameZh    String
+  nameEn    String
+  parentId  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+
+  parent   Category? @relation("CategoryParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryParent")
+  posts    Post[]
+}
+
+model Post {
+  id           String     @id @default(cuid())
+  userId       String
+  categoryId   String
+  title        String
+  description  String
+  price        Decimal?
+  currency     String     @default("USD")
+  city         String?
+  region       String?
+  status       PostStatus @default(PENDING)
+  isTop        Boolean    @default(false)
+  isFeatured   Boolean    @default(false)
+  isUrgent     Boolean    @default(false)
+  topUntil     DateTime?
+  featuredUntil DateTime?
+  views        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  expiresAt    DateTime?
+
+  user     User      @relation(fields: [userId], references: [id])
+  category Category  @relation(fields: [categoryId], references: [id])
+  images   PostImage[]
+  reports  Report[]
+  orders   Order[]
+}
+
+model PostImage {
+  id        String @id @default(cuid())
+  postId    String
+  url       String
+  sortOrder Int    @default(0)
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Banner {
+  id        String         @id @default(cuid())
+  position  BannerPosition
+  imageUrl  String
+  linkUrl   String?
+  startAt   DateTime?
+  endAt     DateTime?
+  isActive  Boolean        @default(true)
+  weight    Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model Report {
+  id             String       @id @default(cuid())
+  postId         String
+  reporterUserId String?
+  reason         String
+  detail         String?
+  status         ReportStatus @default(PENDING)
+  createdAt      DateTime     @default(now())
+
+  post     Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporter User? @relation(fields: [reporterUserId], references: [id])
+}
+
+model Order {
+  id          String            @id @default(cuid())
+  userId      String
+  postId      String?
+  product     PromotionProduct
+  amount      Decimal
+  currency    String            @default("USD")
+  status      OrderStatus       @default(PENDING)
+  provider    String?
+  providerRef String?
+  createdAt   DateTime          @default(now())
+
+  user User  @relation(fields: [userId], references: [id])
+  post Post? @relation(fields: [postId], references: [id])
+}
+
+model PricingPlan {
+  id           String            @id @default(cuid())
+  product      PromotionProduct
+  price        Decimal
+  currency     String            @default("USD")
+  durationDays Int               @default(7)
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  action      String
+  entityType  String
+  entityId    String?
+  detail      String?
+  createdAt   DateTime @default(now())
+
+  actor User? @relation(fields: [actorUserId], references: [id])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

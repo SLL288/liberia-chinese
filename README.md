@@ -1,207 +1,94 @@
-# Liberian Chinese Society - Website
+# Liberia Chinese Hub
 
-A production-ready, bilingual (English/中文) website for the Liberian Chinese Society built with modern web technologies.
+生产可用的华人分类信息与社区门户，支持中文优先 + 英文可选（`/zh`、`/en`）。
 
 ## Tech Stack
 
-- **Framework**: Next.js 15+ (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: Custom components with shadcn/ui patterns
-- **Internationalization**: next-intl (English + Simplified Chinese)
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **Payments**: Stripe
-- **Deployment**: Cloudflare Pages or Vercel
+- Next.js 15 App Router + TypeScript
+- Tailwind CSS + shadcn/ui 组件风格
+- next-intl 路由级 i18n
+- Prisma ORM
+- 本地开发数据库：SQLite
+- 生产数据库：Vercel Postgres（推荐）或 Supabase Postgres
+- Auth.js (NextAuth) 邮箱魔法链接 + 开发模式登录
 
-## Features
-
-### Public Pages
-- **Home**: Hero section, mission statement, latest news, upcoming events, partner logos
-- **About**: Organization history, leadership committee, constitution/bylaws downloads
-- **Events**: Event listings, detailed event pages, RSVP functionality, calendar exports
-- **News**: Blog-style announcements, categories, search functionality
-- **Directory**: Business directory with filtering and contact options
-- **Resources**: Newcomer guides, legal information, local services, emergency contacts
-- **Gallery**: Photo and video gallery
-- **Contact**: Contact form, location map, WeChat/WhatsApp integration
-- **Donate**: One-time and recurring donations, sponsorship tiers
-- **Membership**: Membership tier options and benefits
-
-### Member Features
-- Email magic link authentication
-- Member profiles with WeChat ID and business listing
-- Membership dashboard
-- RSVP history and management
-- Invoice/receipt downloads
-- Event ticket purchases
-
-### Admin Features
-- Protected admin dashboard
-- CRUD operations for: events, posts, directory listings, gallery items, resources
-- Approve/reject directory submissions
-- Member export (CSV)
-- Basic analytics dashboard
-- Sponsorship management
-
-## Project Structure
-
-```
-liberia-chinese/
-├── app/
-│   ├── [locale]/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   ├── about/
-│   │   ├── events/
-│   │   ├── news/
-│   │   ├── directory/
-│   │   ├── resources/
-│   │   ├── gallery/
-│   │   ├── contact/
-│   │   ├── donate/
-│   │   ├── membership/
-│   │   ├── auth/
-│   │   ├── dashboard/
-│   │   └── admin/
-│   ├── api/
-│   │   └── stripe/webhooks/
-│   └── globals.css
-├── components/
-│   ├── Header.tsx
-│   ├── Footer.tsx
-│   └── ui/
-│       ├── Button.tsx
-│       ├── Card.tsx
-│       └── Layout.tsx
-├── lib/
-│   ├── supabase.ts
-│   ├── stripe.ts
-│   ├── utils.ts
-│   ├── database.types.ts
-│   └── constants.ts
-├── content/
-│   ├── en.ts
-│   └── zh.ts
-├── supabase/
-│   └── migrations/
-│       ├── 001_init.sql
-│       └── 002_notifications.sql
-└── public/
-```
-
-## Quick Start
-
-### 1. Clone and Install
-
-```bash
-git clone <repository-url>
-cd liberia-chinese
-npm install
-```
-
-### 2. Supabase Setup
-
-1. Create a Supabase project: https://supabase.com
-2. Get API credentials from Settings > API
-3. Apply migrations in SQL Editor from `supabase/migrations/*.sql`
-
-### 3. Stripe Setup
-
-1. Create Stripe account: https://stripe.com
-2. Get API keys from Developers > API Keys
-3. Create webhook: `stripe listen --forward-to localhost:3000/api/stripe/webhooks`
-
-### 4. Environment Variables
+## 本地开发（SQLite）
 
 ```bash
 cp .env.example .env.local
-```
-
-Fill in your credentials:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-```
-
-### 5. Run Development Server
-
-```bash
+npm install
+npx prisma migrate dev --name init
+npx prisma generate
+npm run prisma:seed
 npm run dev
 ```
 
-Open http://localhost:3000
+访问：`http://localhost:3000/zh`
 
-## Deployment
+## 切换到 Postgres（生产）
 
-### Vercel
-
-```bash
-# Push to GitHub
-# Connect to Vercel and add environment variables
-# Deploy!
-```
-
-### Cloudflare Pages
+1. 在 Vercel 或 Supabase 创建 Postgres 数据库
+2. 将 `DATABASE_URL` 替换为 Postgres 连接串
+3. 运行迁移：
 
 ```bash
-wrangler deploy
+npx prisma migrate deploy
 ```
 
-## Database
+## 认证配置
 
-The application uses Supabase PostgreSQL with:
-- **Tables**: profiles, events, posts, directory_listings, gallery_items, resources, payments, etc.
-- **Auth**: Email magic links + Google OAuth
-- **Storage**: Image uploads to Supabase CDN
-- **RLS**: Row-level security policies for all tables
+- 邮件魔法链接（生产）：
+  - 设置 `EMAIL_SERVER`、`EMAIL_FROM`
+- 开发登录（本地）：
+  - `DEV_LOGIN_ENABLED=true`
+  - 可选 `DEV_LOGIN_EMAIL=demo@local.test` 限制邮箱
 
-## Internationalization
-
-Routes are language-prefixed:
-- `/en/*` - English
-- `/zh/*` - Chinese (Simplified)
-
-Add translations in `content/en.ts` and `content/zh.ts`
-
-## Security
-
-- ✅ Row-Level Security (RLS) in Supabase
-- ✅ Server actions for secure mutations
-- ✅ Environment variable isolation
-- ✅ HTTPS in production
-- ✅ CSRF protection
-- ✅ SQL injection prevention
-
-## Common Commands
+## 数据种子
 
 ```bash
-# Development
-npm run dev
-
-# Build
-npm run build
-npm start
-
-# Type check
-npm run type-check
-
-# Lint
-npm run lint
-
-# Database migrations
-supabase db push
+npm run prisma:seed
 ```
 
-## Support
+会生成：
+- 分类目录
+- 示例帖子
+- 示例 Banner
+- 推广价格表
 
-Email: info@liberiachinese.com
-Phone: +231 XX XXX XXXX
+## 部署到 Vercel
 
-## License
+1. 推送到 GitHub
+2. 在 Vercel 创建新项目
+3. 设置环境变量（`DATABASE_URL`、`NEXTAUTH_SECRET`、`NEXTAUTH_URL`）
+4. 部署完成后访问 `/zh` 或 `/en`
 
-© 2025 Liberian Chinese Society. All rights reserved.
+## 目录结构（核心）
+
+```
+app/
+  [locale]/
+    page.tsx
+    categories/
+    posts/
+    publish/
+    search/
+    dashboard/
+    admin/
+  api/
+    auth/[...nextauth]
+    posts
+prisma/
+  schema.prisma
+  seed.ts
+components/
+  ui/
+lib/
+  prisma.ts
+  data.ts
+```
+
+## 后续扩展
+
+- Stripe 付款 + 推广套餐自动化
+- Vercel Blob / S3 图片上传
+- 更完整的审核流程与举报队列

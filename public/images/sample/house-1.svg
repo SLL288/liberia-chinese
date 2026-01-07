@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7d7c4" />
+      <stop offset="100%" stop-color="#f1b27a" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)" />
+  <rect x="140" y="220" width="520" height="280" fill="#ffffff" stroke="#3b2f2f" stroke-width="8" />
+  <polygon points="400,120 120,260 680,260" fill="#c2412d" />
+  <rect x="330" y="340" width="140" height="160" fill="#3b2f2f" />
+  <rect x="200" y="320" width="110" height="90" fill="#8fb9d9" />
+  <rect x="490" y="320" width="110" height="90" fill="#8fb9d9" />
+  <text x="400" y="560" font-family="Arial, sans-serif" font-size="28" text-anchor="middle" fill="#3b2f2f">示例房源图</text>
+</svg>
