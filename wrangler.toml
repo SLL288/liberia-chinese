@@ -3,8 +3,12 @@
 name = "liberian-chinese-society"
 
 # Specify build output directory for Next.js
-pages_build_output_dir = ".next/public"
+pages_build_output_dir = ".next"
 
 # Node.js compatibility settings
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
+
+# Exclude large cache files from deployment
+[env.production]
+vars = { SKIP_CACHE = "true" }
