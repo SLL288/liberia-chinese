@@ -3,17 +3,19 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import '../../app/globals.css';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://liberia-chinese.vercel.app';
+
 export const metadata: Metadata = {
   title: {
     default: 'Liberian Chinese Society',
     template: '%s - Liberian Chinese Society',
   },
   description: 'Promoting Chinese culture, community support, and business networking in Liberia',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://liberiachinese.com'),
+  metadataBase: new URL(siteUrl),
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://liberiachinese.com',
+    url: siteUrl,
     siteName: 'Liberian Chinese Society',
     images: [
       {
@@ -39,9 +41,12 @@ export default async function RootLayout({
   
   let messages = {};
   try {
+    console.log(`[Layout] Loading messages for locale: ${locale}`);
     messages = await getMessages();
+    console.log(`[Layout] Successfully loaded messages for locale: ${locale}`);
   } catch (error) {
-    console.error('Failed to get messages:', error);
+    console.error(`[Layout] Failed to get messages for locale ${locale}:`, error instanceof Error ? error.message : String(error));
+    throw error; // Re-throw so Vercel captures the error
   }
 
   return (
