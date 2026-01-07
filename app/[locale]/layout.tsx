@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import enMessages from '@/content/en';
+import zhMessages from '@/content/zh';
 import '../../app/globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://liberia-chinese.vercel.app';
@@ -40,13 +42,20 @@ export default async function RootLayout({
   const { locale } = await params;
   
   let messages = {};
+  const supported = ['zh', 'en'];
   try {
-    console.log(`[Layout] Loading messages for locale: ${locale}`);
-    messages = await getMessages();
-    console.log(`[Layout] Successfully loaded messages for locale: ${locale}`);
+    // Ignore requests that are clearly assets (e.g., favicon.ico)
+    if (!supported.includes(locale) || locale.includes('.')) {
+      console.warn(`[Layout] Invalid locale param: ${locale}. Falling back to default locale 'zh'.`);
+      messages = zhMessages;
+    } else {
+      console.log(`[Layout] Loading messages for locale: ${locale}`);
+      messages = await getMessages();
+      console.log(`[Layout] Successfully loaded messages for locale: ${locale}`);
+    }
   } catch (error) {
     console.error(`[Layout] Failed to get messages for locale ${locale}:`, error instanceof Error ? error.message : String(error));
-    throw error; // Re-throw so Vercel captures the error
+    throw error;
   }
 
   return (
