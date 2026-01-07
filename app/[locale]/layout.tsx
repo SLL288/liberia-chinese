@@ -36,7 +36,13 @@ export default async function RootLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const messages = await getMessages();
+  
+  let messages = {};
+  try {
+    messages = await getMessages();
+  } catch (error) {
+    console.error('Failed to get messages:', error);
+  }
 
   return (
     <html lang={locale}>
