@@ -11,8 +11,8 @@ export default getRequestConfig(async ({ locale }) => {
   }
 
   const messages = locale === 'zh' 
-    ? (await import('./content/zh')).default
-    : (await import('./content/en')).default;
+    ? (await import('@/content/zh')).default
+    : (await import('@/content/en')).default;
 
   return {
     messages,
