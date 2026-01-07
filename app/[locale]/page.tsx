@@ -10,7 +10,16 @@ export const dynamic = 'force-dynamic';
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const [categories, featuredPosts, latestPosts, banners] = await Promise.all([
+  type CategoryItem = Awaited<ReturnType<typeof getCategories>>[number];
+  type PostItem = Awaited<ReturnType<typeof getLatestPosts>>[number];
+  type BannerItem = Awaited<ReturnType<typeof getBanners>>[number];
+
+  const [categories, featuredPosts, latestPosts, banners]: [
+    CategoryItem[],
+    PostItem[],
+    PostItem[],
+    BannerItem[],
+  ] = await Promise.all([
     getCategories(),
     getFeaturedPosts(),
     getLatestPosts(),
