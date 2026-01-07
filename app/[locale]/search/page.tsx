@@ -27,7 +27,10 @@ export default async function SearchPage({
   const { locale } = await params;
   const query = await searchParams;
   const t = await getTranslations();
-  const [categories, posts] = await Promise.all([
+  type CategoryItem = Awaited<ReturnType<typeof getCategories>>[number];
+  type PostItem = Awaited<ReturnType<typeof searchPosts>>[number];
+
+  const [categories, posts]: [CategoryItem[], PostItem[]] = await Promise.all([
     getCategories(),
     searchPosts({
       keyword: query.keyword,
