@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 .DS_Store
+._*
 *.log
 .env.*.local
 .vercel/
