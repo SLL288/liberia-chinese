@@ -14,6 +14,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
 
   return {
+    locale,
     messages: locale === 'zh' ? zh : en,
   };
 });
