@@ -314,3 +314,5 @@ export const zh = {
     deleting: '删除中...',
   },
 };
+
+export default zh;

@@ -1,12 +1,47 @@
-import { getRequestConfig } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import createNextIntlPlugin from 'next-intl/plugin';
 
-const locales = ['en', 'zh'];
+const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
-export default getRequestConfig(async ({ locale }) => {
-  if (!locales.includes(locale)) notFound();
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
+    formats: ['image/avif', 'image/webp'],
+  },
+  headers: async () => {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
+};
 
-  return {
-    messages: (await import(`@/content/${locale}.ts`)).default,
-  };
-});
+export default withNextIntl(nextConfig);

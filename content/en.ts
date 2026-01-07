@@ -314,3 +314,5 @@ export const en = {
     deleting: 'Deleting...',
   },
 };
+
+export default en;
