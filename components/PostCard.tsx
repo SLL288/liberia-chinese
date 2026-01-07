@@ -17,13 +17,13 @@ type PostCardProps = {
     isTop: boolean;
     isFeatured: boolean;
     isUrgent: boolean;
-    images: { url: string }[];
-    category: { nameZh: string; nameEn: string; slug: string };
+    images?: { url: string }[];
+    category?: { nameZh: string; nameEn: string; slug: string };
   };
 };
 
 export function PostCard({ locale, post }: PostCardProps) {
-  const image = post.images[0]?.url ?? '/images/sample/house-1.svg';
+  const image = post.images?.[0]?.url ?? '/images/sample/house-1.svg';
   const priceLabel =
     typeof post.price === 'number'
       ? formatCurrency(post.price, post.currency, locale === 'zh' ? 'zh-CN' : 'en-US')
@@ -59,9 +59,11 @@ export function PostCard({ locale, post }: PostCardProps) {
             </span>
             <span>👁️ {post.views}</span>
           </div>
-          <div className="text-xs text-muted-foreground">
-            {locale === 'zh' ? post.category.nameZh : post.category.nameEn}
-          </div>
+          {post.category ? (
+            <div className="text-xs text-muted-foreground">
+              {locale === 'zh' ? post.category.nameZh : post.category.nameEn}
+            </div>
+          ) : null}
         </CardContent>
       </Link>
     </Card>

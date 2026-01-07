@@ -13,9 +13,7 @@ export default async function BusinessDirectoryPage({
   const t = await getTranslations();
   const category = await prisma.category.findUnique({ where: { slug: 'business' } });
 
-  type PostWithRelations = Awaited<ReturnType<typeof prisma.post.findMany>>[number];
-
-  const posts: PostWithRelations[] = category
+  const posts = category
     ? await prisma.post.findMany({
         where: { status: 'ACTIVE', categoryId: category.id },
         orderBy: { createdAt: 'desc' },
