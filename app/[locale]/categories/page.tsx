@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic';
 export default async function CategoriesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const categories = await getCategories();
+  type CategoryItem = Awaited<ReturnType<typeof getCategories>>[number];
+  const categories: CategoryItem[] = await getCategories();
 
   return (
     <div className="container-shell space-y-8 py-10">
