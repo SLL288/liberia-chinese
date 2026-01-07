@@ -56,6 +56,7 @@ if (devLoginEnabled) {
           id: user.id,
           name: user.name ?? undefined,
           email: user.email ?? undefined,
+          role: user.role,
         };
       },
     })
