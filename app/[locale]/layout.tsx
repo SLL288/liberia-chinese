@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, unstable_setRequestLocale } from 'next-intl/server';
 import { locales } from '@/i18n';
 import { auth } from '@/auth';
@@ -55,13 +56,15 @@ export default async function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="min-h-screen flex flex-col">
-        <Providers locale={locale} messages={messages} session={session}>
-          <div className="min-h-screen flex flex-col">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-          </div>
-        </Providers>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Providers session={session}>
+            <div className="min-h-screen flex flex-col">
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
