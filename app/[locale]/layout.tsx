@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, unstable_setRequestLocale } from 'next-intl/server';
 import { locales } from '@/i18n';
-import { auth } from '@/auth';
 import { Providers } from '@/components/Providers';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -48,7 +47,7 @@ export default async function RootLayout({
   const { locale } = await params;
   unstable_setRequestLocale(locale);
   const messages = await getMessages();
-  const session = await auth();
+  const session = null;
 
   return (
     <html lang={locale}>
