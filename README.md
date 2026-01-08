@@ -1,6 +1,6 @@
 # Liberia Chinese Hub
 
-生产可用的华人分类信息与社区门户，支持中文优先 + 英文可选（`/zh`、`/en`）。
+生产可用的华人分类信息与社区门户，支持中文优先 + 英文可选（`/zh`、`/en`），认证使用 Supabase Auth（手机号 OTP 为主）。
 
 ## Tech Stack
 
@@ -10,38 +10,37 @@
 - Prisma ORM
 - 本地开发数据库：SQLite
 - 生产数据库：Vercel Postgres（推荐）或 Supabase Postgres
-- Auth.js (NextAuth) 邮箱魔法链接 + 开发模式登录
+- Supabase Auth（短信 OTP + Google 可选）
 
-## 本地开发（SQLite）
+## 本地开发（Postgres）
 
 ```bash
 cp .env.example .env.local
 npm install
-npx prisma migrate dev --name init
 npx prisma generate
+npx prisma migrate dev --name init
 npm run prisma:seed
 npm run dev
 ```
 
 访问：`http://localhost:3000/zh`
 
-## 切换到 Postgres（生产）
+## 生产数据库（Supabase）
 
-1. 在 Vercel 或 Supabase 创建 Postgres 数据库
-2. 将 `DATABASE_URL` 替换为 Postgres 连接串
+1. 在 Supabase 创建 Postgres 数据库
+2. 设置 `DATABASE_URL`（pooler）和 `DIRECT_URL`（direct）
 3. 运行迁移：
 
 ```bash
 npx prisma migrate deploy
 ```
 
-## 认证配置
+## 认证配置（Supabase Auth）
 
-- 邮件魔法链接（生产）：
-  - 设置 `EMAIL_SERVER`、`EMAIL_FROM`
-- 开发登录（本地）：
-  - `DEV_LOGIN_ENABLED=true`
-  - 可选 `DEV_LOGIN_EMAIL=demo@local.test` 限制邮箱
+- 短信 OTP 默认使用手机号登录（+231）
+- Google 登录需在 Supabase 启用 OAuth，并设置 `NEXT_PUBLIC_ENABLE_GOOGLE=true`
+- 管理员：
+  - 设置 `ADMIN_PHONE`，登录同手机号会自动赋予 `ADMIN`
 
 ## 数据种子
 
@@ -59,7 +58,7 @@ npm run prisma:seed
 
 1. 推送到 GitHub
 2. 在 Vercel 创建新项目
-3. 设置环境变量（`DATABASE_URL`、`NEXTAUTH_SECRET`、`NEXTAUTH_URL`）
+3. 设置环境变量（`DATABASE_URL`、`DIRECT_URL`、`NEXT_PUBLIC_SUPABASE_URL`、`NEXT_PUBLIC_SUPABASE_ANON_KEY`、`SUPABASE_SERVICE_ROLE_KEY`）
 4. 部署完成后访问 `/zh` 或 `/en`
 
 ## 目录结构（核心）

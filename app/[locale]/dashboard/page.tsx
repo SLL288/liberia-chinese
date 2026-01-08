@@ -1,20 +1,20 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { auth } from '@/auth';
 import { getUserPosts } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { PromotionTable } from '@/components/PromotionTable';
 import { formatDate } from '@/lib/utils';
+import { getCurrentUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const session = await auth();
+  const user = await getCurrentUser();
 
-  if (!session?.user?.id) {
+  if (!user) {
     return (
       <div className="container-shell py-16">
         <h1 className="text-2xl font-semibold">{t('dashboard.title')}</h1>
@@ -22,14 +22,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
           {locale === 'zh' ? '请先登录查看发布内容。' : 'Sign in to manage your posts.'}
         </p>
         <Button asChild className="mt-6">
-          <Link href={`/${locale}/auth/login`}>{t('nav.login')}</Link>
+          <Link href={`/${locale}/login`}>{t('nav.login')}</Link>
         </Button>
       </div>
     );
   }
 
   type UserPost = Awaited<ReturnType<typeof getUserPosts>>[number];
-  const posts: UserPost[] = await getUserPosts(session.user.id);
+  const posts: UserPost[] = await getUserPosts(user.id);
 
   return (
     <div className="container-shell space-y-8 py-10">

@@ -27,6 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/en/search',
     '/zh/business',
     '/en/business',
+    '/zh/login',
+    '/en/login',
   ];
 
   const categoryRoutes = categories.flatMap((category) => [

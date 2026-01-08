@@ -1,16 +1,26 @@
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function AdminPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ status?: string; category?: string; keyword?: string }>;
+}) {
   const { locale } = await params;
   const t = await getTranslations();
-  const session = await auth();
+  const admin = await requireAdmin();
 
-  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+  if (!admin) {
     return (
       <div className="container-shell py-16">
         <h1 className="text-2xl font-semibold">{t('admin.title')}</h1>
@@ -21,6 +31,21 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
     );
   }
 
+  const query = await searchParams;
+  const categories = await prisma.category.findMany({ orderBy: { nameZh: 'asc' } });
+  const posts = await prisma.post.findMany({
+    where: {
+      ...(query.status ? { status: query.status } : {}),
+      ...(query.category ? { categoryId: query.category } : {}),
+      ...(query.keyword
+        ? { OR: [{ title: { contains: query.keyword } }, { description: { contains: query.keyword } }] }
+        : {}),
+    },
+    orderBy: { createdAt: 'desc' },
+    include: { category: true, user: true },
+    take: 50,
+  });
+
   const [postCount, pendingCount, reportCount, bannerCount] = await Promise.all([
     prisma.post.count(),
     prisma.post.count({ where: { status: 'PENDING' } }),
@@ -30,7 +55,12 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
 
   return (
     <div className="container-shell space-y-8 py-10">
-      <h1 className="text-3xl font-semibold text-display">{t('admin.title')}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-semibold text-display">{t('admin.title')}</h1>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/logout">{locale === 'zh' ? '退出登录' : 'Sign out'}</Link>
+        </Button>
+      </div>
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="space-y-2 p-6">
@@ -57,6 +87,64 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardContent className="space-y-4 p-6">
+          <h2 className="text-lg font-semibold">{t('admin.moderation')}</h2>
+          <form className="grid gap-3 md:grid-cols-4">
+            <Input name="keyword" placeholder={locale === 'zh' ? '关键词' : 'Keyword'} defaultValue={query.keyword} />
+            <Select name="status" defaultValue={query.status ?? ''}>
+              <option value="">{locale === 'zh' ? '全部状态' : 'All Status'}</option>
+              <option value="PENDING">Pending</option>
+              <option value="ACTIVE">Active</option>
+              <option value="BANNED">Banned</option>
+              <option value="EXPIRED">Expired</option>
+            </Select>
+            <Select name="category" defaultValue={query.category ?? ''}>
+              <option value="">{locale === 'zh' ? '全部分类' : 'All Categories'}</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {locale === 'zh' ? category.nameZh : category.nameEn}
+                </option>
+              ))}
+            </Select>
+            <Button type="submit">{locale === 'zh' ? '筛选' : 'Filter'}</Button>
+          </form>
+
+          <div className="space-y-3">
+            {posts.map((post) => (
+              <div key={post.id} className="rounded-xl border border-border bg-white p-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <h3 className="font-semibold">{post.title}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {post.status} · {locale === 'zh' ? post.category.nameZh : post.category.nameEn}
+                    </p>
+                  </div>
+                  <form action="/api/admin/posts" method="post" className="flex flex-wrap gap-2">
+                    <input type="hidden" name="postId" value={post.id} />
+                    <Button name="action" value="approve" size="sm">
+                      {locale === 'zh' ? '通过' : 'Approve'}
+                    </Button>
+                    <Button name="action" value="ban" size="sm" variant="destructive">
+                      {locale === 'zh' ? '封禁' : 'Ban'}
+                    </Button>
+                    <Button name="action" value="feature" size="sm" variant="outline">
+                      {locale === 'zh' ? '推荐' : 'Feature'}
+                    </Button>
+                    <Button name="action" value="top" size="sm" variant="outline">
+                      {locale === 'zh' ? '置顶' : 'Top'}
+                    </Button>
+                    <Button name="action" value="delete" size="sm" variant="ghost">
+                      {locale === 'zh' ? '删除' : 'Delete'}
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

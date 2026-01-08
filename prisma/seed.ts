@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -19,10 +20,10 @@ const categories = [
 ];
 
 async function main() {
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@local.test' },
-    update: {},
-    create: {
+  const adminId = randomUUID();
+  const admin = await prisma.user.create({
+    data: {
+      id: adminId,
       email: 'admin@local.test',
       name: 'Admin',
       role: 'ADMIN',

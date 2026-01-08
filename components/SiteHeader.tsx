@@ -47,7 +47,7 @@ export function SiteHeader() {
             {localePrefix === '/en' ? '中文' : 'EN'}
           </Link>
           <Button asChild size="sm">
-            <Link href={`${localePrefix}/auth/login`}>{t('nav.login')}</Link>
+            <Link href={`${localePrefix}/login`}>{t('nav.login')}</Link>
           </Button>
         </div>
       </div>

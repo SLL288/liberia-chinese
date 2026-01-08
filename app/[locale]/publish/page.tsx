@@ -1,16 +1,16 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { auth } from '@/auth';
 import { getCategories } from '@/lib/data';
 import { PublishWizard } from '@/components/publish/PublishWizard';
 import { Button } from '@/components/ui/button';
+import { getCurrentUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PublishPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations();
-  const session = await auth();
+  const user = await getCurrentUser();
   const categories = await getCategories();
 
   return (
@@ -19,7 +19,7 @@ export default async function PublishPage({ params }: { params: Promise<{ locale
         <h1 className="text-3xl font-semibold text-display">{t('publish.title')}</h1>
         <p className="text-sm text-muted-foreground">{t('publish.hint')}</p>
       </div>
-      {!session?.user ? (
+      {!user ? (
         <div className="rounded-2xl border border-border bg-white p-6">
           <p className="text-sm text-muted-foreground">
             {locale === 'zh'
@@ -27,7 +27,7 @@ export default async function PublishPage({ params }: { params: Promise<{ locale
               : 'Please sign in before publishing a post.'}
           </p>
           <Button asChild className="mt-4">
-            <Link href={`/${locale}/auth/login`}>{t('nav.login')}</Link>
+            <Link href={`/${locale}/login`}>{t('nav.login')}</Link>
           </Button>
         </div>
       ) : (
