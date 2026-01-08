@@ -78,6 +78,8 @@ if (providers.length === 0) {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers,
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   session: { strategy: 'database' },
   callbacks: {
     async session({ session, user }) {
