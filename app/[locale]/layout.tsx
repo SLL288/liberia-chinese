@@ -5,7 +5,6 @@ import { auth } from '@/auth';
 import { Providers } from '@/components/Providers';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
-import '../../app/globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://liberia-chinese.vercel.app';
 

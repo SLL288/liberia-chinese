@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Manrope, Noto_Sans_SC } from 'next/font/google';
-import '../app/globals.css';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: '利比里亚华人分类信息 | Liberia Chinese Hub',
