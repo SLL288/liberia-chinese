@@ -11,6 +11,8 @@ type Step = 'phone' | 'verify';
 
 const RESEND_SECONDS = 60;
 
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const t = useTranslations();
   const [step, setStep] = useState<Step>('phone');
@@ -22,14 +24,14 @@ export default function LoginPage() {
   const pathname = usePathname();
   const locale = pathname?.startsWith('/en') ? 'en' : 'zh';
 
-  const supabase = useMemo(
-    () =>
-      createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-      ),
-    []
-  );
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !anonKey) {
+      return null;
+    }
+    return createBrowserClient(url, anonKey);
+  }, []);
 
   useEffect(() => {
     if (!seconds) return;
@@ -40,7 +42,7 @@ export default function LoginPage() {
   const sendOtp = async () => {
     setLoading(true);
     setMessage(null);
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (!supabase) {
       setLoading(false);
       setMessage('Supabase env missing.');
       return;
@@ -61,7 +63,7 @@ export default function LoginPage() {
   const verifyOtp = async () => {
     setLoading(true);
     setMessage(null);
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (!supabase) {
       setLoading(false);
       setMessage('Supabase env missing.');
       return;
@@ -85,6 +87,11 @@ export default function LoginPage() {
   const signInWithGoogle = async () => {
     setLoading(true);
     setMessage(null);
+    if (!supabase) {
+      setLoading(false);
+      setMessage('Supabase env missing.');
+      return;
+    }
     const origin = window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
