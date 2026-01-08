@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -17,8 +16,6 @@ const navItems = [
 export function SiteHeader() {
   const t = useTranslations();
   const pathname = usePathname();
-  const { data: session } = useSession();
-
   const localePrefix = pathname?.startsWith('/en') ? '/en' : '/zh';
   const altLocale = localePrefix === '/en' ? '/zh' : '/en';
   const switchPath = pathname ? pathname.replace(localePrefix, altLocale) : altLocale;
@@ -49,15 +46,9 @@ export function SiteHeader() {
           <Link href={switchPath} className="text-sm text-muted-foreground hover:text-foreground">
             {localePrefix === '/en' ? '中文' : 'EN'}
           </Link>
-          {session?.user ? (
-            <Button asChild size="sm">
-              <Link href={`${localePrefix}/dashboard`}>{t('nav.myAccount')}</Link>
-            </Button>
-          ) : (
-            <Button asChild size="sm">
-              <Link href={`${localePrefix}/auth/login`}>{t('nav.login')}</Link>
-            </Button>
-          )}
+          <Button asChild size="sm">
+            <Link href={`${localePrefix}/auth/login`}>{t('nav.login')}</Link>
+          </Button>
         </div>
       </div>
     </header>
