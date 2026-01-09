@@ -7,7 +7,8 @@ import { createBrowserClient } from '@supabase/ssr';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-type Step = 'phone' | 'verify';
+type Step = 'phone' | 'verify' | 'emailSent';
+type Method = 'phone' | 'email';
 
 const RESEND_SECONDS = 60;
 
@@ -16,7 +17,9 @@ export const dynamic = 'force-dynamic';
 export default function LoginPage() {
   const t = useTranslations();
   const [step, setStep] = useState<Step>('phone');
+  const [method, setMethod] = useState<Method>('phone');
   const [phone, setPhone] = useState('+231');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -44,19 +47,26 @@ export default function LoginPage() {
     setMessage(null);
     if (!supabase) {
       setLoading(false);
-      setMessage('Supabase env missing.');
+      setMessage(t('auth.missingEnv'));
       return;
     }
-    const { error } = await supabase.auth.signInWithOtp({
-      phone,
-      options: { channel: 'sms' },
-    });
+    const origin = window.location.origin;
+    const { error } =
+      method === 'email'
+        ? await supabase.auth.signInWithOtp({
+            email,
+            options: { emailRedirectTo: `${origin}/auth/callback` },
+          })
+        : await supabase.auth.signInWithOtp({
+            phone,
+            options: { channel: 'sms' },
+          });
     setLoading(false);
     if (error) {
       setMessage(error.message);
       return;
     }
-    setStep('verify');
+    setStep(method === 'email' ? 'emailSent' : 'verify');
     setSeconds(RESEND_SECONDS);
   };
 
@@ -65,7 +75,7 @@ export default function LoginPage() {
     setMessage(null);
     if (!supabase) {
       setLoading(false);
-      setMessage('Supabase env missing.');
+      setMessage(t('auth.missingEnv'));
       return;
     }
     const { data, error } = await supabase.auth.verifyOtp({
@@ -89,7 +99,7 @@ export default function LoginPage() {
     setMessage(null);
     if (!supabase) {
       setLoading(false);
-      setMessage('Supabase env missing.');
+      setMessage(t('auth.missingEnv'));
       return;
     }
     const origin = window.location.origin;
@@ -108,27 +118,64 @@ export default function LoginPage() {
       <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
         <h1 className="text-2xl font-semibold text-display">{t('nav.login')}</h1>
         <p className="text-sm text-muted-foreground">{t('auth.hint')}</p>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant={method === 'phone' ? 'default' : 'outline'}
+            className="flex-1"
+            onClick={() => {
+              setMethod('phone');
+              setStep('phone');
+              setMessage(null);
+            }}
+          >
+            {t('auth.methodPhone')}
+          </Button>
+          <Button
+            type="button"
+            variant={method === 'email' ? 'default' : 'outline'}
+            className="flex-1"
+            onClick={() => {
+              setMethod('email');
+              setStep('phone');
+              setMessage(null);
+            }}
+          >
+            {t('auth.methodEmail')}
+          </Button>
+        </div>
 
-        {step === 'phone' ? (
+        {step === 'phone' && method === 'phone' ? (
           <div className="space-y-3">
             <Input
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              placeholder="+231 77 000 0000"
+              placeholder={t('auth.phonePlaceholder')}
             />
             <Button className="w-full" onClick={sendOtp} disabled={loading}>
-              {loading ? t('common.loading') : '发送验证码 / Send Code'}
+              {loading ? t('common.loading') : t('auth.sendCode')}
             </Button>
           </div>
-        ) : (
+        ) : step === 'phone' && method === 'email' ? (
+          <div className="space-y-3">
+            <Input
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder={t('auth.emailPlaceholder')}
+            />
+            <Button className="w-full" onClick={sendOtp} disabled={loading}>
+              {loading ? t('common.loading') : t('auth.sendEmail')}
+            </Button>
+          </div>
+        ) : step === 'verify' ? (
           <div className="space-y-3">
             <Input
               value={otp}
               onChange={(event) => setOtp(event.target.value)}
-              placeholder="123456"
+              placeholder={t('auth.otpPlaceholder')}
             />
             <Button className="w-full" onClick={verifyOtp} disabled={loading}>
-              {loading ? t('common.loading') : '验证并登录 / Verify'}
+              {loading ? t('common.loading') : t('auth.verifyCode')}
             </Button>
             <Button
               variant="ghost"
@@ -136,14 +183,26 @@ export default function LoginPage() {
               onClick={sendOtp}
               disabled={loading || seconds > 0}
             >
-              {seconds > 0 ? `重新发送 (${seconds}s)` : '重新发送验证码'}
+              {seconds > 0 ? t('auth.resendIn', { seconds }) : t('auth.resend')}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <p>{t('auth.emailSent')}</p>
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={sendOtp}
+              disabled={loading || seconds > 0}
+            >
+              {seconds > 0 ? t('auth.resendIn', { seconds }) : t('auth.resend')}
             </Button>
           </div>
         )}
 
         {process.env.NEXT_PUBLIC_ENABLE_GOOGLE === 'true' ? (
           <Button variant="outline" className="w-full" onClick={signInWithGoogle} disabled={loading}>
-            Continue with Google
+            {t('auth.continueWithGoogle')}
           </Button>
         ) : null}
 
