@@ -27,7 +27,9 @@ export async function generateMetadata({
 
   const title = post.title;
   const rawImage = post.images[0]?.url || null;
-  const image = rawImage && !isDataUrl(rawImage) ? absoluteUrl(rawImage) : absoluteUrl('/og/default-post.jpg');
+  const image = rawImage && !isDataUrl(rawImage)
+    ? await absoluteUrl(rawImage)
+    : await absoluteUrl('/og/default-post.jpg');
   const priceLabel = post.price
     ? formatCurrency(Number(post.price), post.currency, locale === 'zh' ? 'zh-CN' : 'en-US')
     : locale === 'zh'
@@ -36,8 +38,8 @@ export async function generateMetadata({
   const location = [post.city, post.region].filter(Boolean).join(' ');
   const descBase = `${priceLabel}${location ? ` · ${location}` : ''} · ${post.description}`;
   const description = clampDescription(descBase, locale === 'zh' ? 100 : 160);
-  const url = `${getSiteUrl()}/${locale}/posts/${post.id}`;
-  const ogImage = absoluteUrl(
+  const url = `${await getSiteUrl()}/${locale}/posts/${post.id}`;
+  const ogImage = await absoluteUrl(
     `/api/og?type=post&title=${encodeURIComponent(title)}&price=${encodeURIComponent(
       priceLabel
     )}&city=${encodeURIComponent(location)}`
@@ -83,7 +85,7 @@ export default async function PostDetailPage({
     : locale === 'zh'
     ? '面议'
     : 'Negotiable';
-  const shareUrl = `${getSiteUrl()}/${locale}/posts/${post.id}`;
+  const shareUrl = `${await getSiteUrl()}/${locale}/posts/${post.id}`;
 
   return (
     <div className="container-shell space-y-8 py-10">

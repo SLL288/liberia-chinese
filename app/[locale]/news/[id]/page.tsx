@@ -37,9 +37,9 @@ export async function generateMetadata({
     null;
   const image = candidateImage && !isDataUrl(candidateImage)
     ? candidateImage
-    : absoluteUrl('/og/default-news.jpg');
-  const url = `${getSiteUrl()}/${locale}/news/${item.id}`;
-  const ogImage = absoluteUrl(`/api/og?type=news&title=${encodeURIComponent(title)}`);
+    : await absoluteUrl('/og/default-news.jpg');
+  const url = `${await getSiteUrl()}/${locale}/news/${item.id}`;
+  const ogImage = await absoluteUrl(`/api/og?type=news&title=${encodeURIComponent(title)}`);
 
   return {
     title,
@@ -86,7 +86,7 @@ export default async function NewsDetailPage({
     '/images/banners/home-top.svg';
   const tags = item.tagsOverride?.length ? item.tagsOverride : item.tags;
   const dateValue = item.publishedAtOverride || item.publishedAt || item.createdAt;
-  const shareUrl = `${getSiteUrl()}/${locale}/news/${item.id}`;
+  const shareUrl = `${await getSiteUrl()}/${locale}/news/${item.id}`;
 
   return (
     <div className="container-shell space-y-8 py-10">

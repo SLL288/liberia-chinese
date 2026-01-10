@@ -22,9 +22,9 @@ export async function generateMetadata({
     locale === 'zh'
       ? '分类信息｜求职招聘｜租房二手｜商家名录｜政策资讯'
       : 'Classifieds, jobs, housing, business directory, and policy news.';
-  const url = `${getSiteUrl()}/${locale}`;
-  const imageUrl = absoluteUrl('/og/default-home.jpg');
-  const ogImage = absoluteUrl(`/api/og?type=home&title=${encodeURIComponent(title)}`);
+  const url = `${await getSiteUrl()}/${locale}`;
+  const imageUrl = await absoluteUrl('/og/default-home.jpg');
+  const ogImage = await absoluteUrl(`/api/og?type=home&title=${encodeURIComponent(title)}`);
 
   return {
     title,
