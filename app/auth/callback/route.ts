@@ -44,7 +44,10 @@ export async function GET(request: Request) {
     const { data } = await supabase.auth.getUser();
     if (data.user) {
       const adminPhone = process.env.ADMIN_PHONE;
-      const promoteToAdmin = adminPhone && data.user.phone === adminPhone;
+      const adminEmail = process.env.ADMIN_EMAIL;
+      const promoteToAdmin =
+        (adminPhone && data.user.phone === adminPhone) ||
+        (adminEmail && data.user.email === adminEmail);
       await prisma.user.upsert({
         where: { id: data.user.id },
         update: {

@@ -6,8 +6,10 @@ export async function getCurrentUser() {
   if (!supabaseUser) return null;
 
   const adminPhone = process.env.ADMIN_PHONE;
+  const adminEmail = process.env.ADMIN_EMAIL;
   const promoteToAdmin =
-    adminPhone && supabaseUser.phone && supabaseUser.phone === adminPhone;
+    (adminPhone && supabaseUser.phone && supabaseUser.phone === adminPhone) ||
+    (adminEmail && supabaseUser.email && supabaseUser.email === adminEmail);
 
   const user = await prisma.user.upsert({
     where: { id: supabaseUser.id },
