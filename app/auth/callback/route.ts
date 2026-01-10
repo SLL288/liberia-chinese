@@ -9,6 +9,21 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const next = searchParams.get('next');
+  const error = searchParams.get('error');
+  const errorDescription = searchParams.get('error_description');
+
+  const fallbackLogin = (() => {
+    if (next?.startsWith('/zh')) return '/zh/login';
+    if (next?.startsWith('/en')) return '/en/login';
+    return '/en/login';
+  })();
+
+  if (!code || error) {
+    const loginUrl = new URL(fallbackLogin, request.url);
+    if (error) loginUrl.searchParams.set('error', error);
+    if (errorDescription) loginUrl.searchParams.set('error_description', errorDescription);
+    return NextResponse.redirect(loginUrl);
+  }
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',

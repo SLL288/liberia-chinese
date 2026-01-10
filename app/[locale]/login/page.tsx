@@ -42,6 +42,15 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, [seconds]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const errorDescription = params.get('error_description');
+    const error = params.get('error');
+    if (errorDescription || error) {
+      setMessage(errorDescription ?? error);
+    }
+  }, []);
+
   const sendOtp = async () => {
     setLoading(true);
     setMessage(null);
