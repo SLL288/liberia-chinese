@@ -1,11 +1,67 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getNewsItem } from '@/lib/news/queries';
 import { parseSummary } from '@/lib/news/format';
 import { getPublicImageUrl } from '@/lib/news/storage';
+import { ShareDialog } from '@/components/ShareDialog';
+import { absoluteUrl, getSiteUrl } from '@/lib/metadata';
+import { clampDescription, truncateForShare, isDataUrl } from '@/lib/share';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+  const item = await getNewsItem(id);
+  if (!item || item.isHidden) {
+    return {};
+  }
+
+  const title = item.titleOverride || item.title || item.url;
+  const summary = parseSummary(item.summaryOverrideZh || item.summaryZh || '');
+  const bullets = summary.bullets.slice(0, 2).join('；');
+  const description = clampDescription(
+    bullets || summary.paragraph || '未在原文中明确说明',
+    locale === 'zh' ? 110 : 180
+  );
+  const candidateImage =
+    item.imageOverrideUrl ||
+    getPublicImageUrl(item.imagePath) ||
+    item.ogImageUrl ||
+    null;
+  const image = candidateImage && !isDataUrl(candidateImage)
+    ? candidateImage
+    : absoluteUrl('/og/default-news.jpg');
+  const url = `${getSiteUrl()}/${locale}/news/${item.id}`;
+  const ogImage = absoluteUrl(`/api/og?type=news&title=${encodeURIComponent(title)}`);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: truncateForShare(title, locale),
+      description,
+      url,
+      siteName: locale === 'zh' ? '利比里亚华人' : 'Liberia Chinese',
+      locale: locale === 'zh' ? 'zh_CN' : 'en_US',
+      type: 'article',
+      images: [{ url: ogImage, width: 1200, height: 630 }, { url: image }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: truncateForShare(title, locale),
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function NewsDetailPage({
   params,
@@ -30,6 +86,7 @@ export default async function NewsDetailPage({
     '/images/banners/home-top.svg';
   const tags = item.tagsOverride?.length ? item.tagsOverride : item.tags;
   const dateValue = item.publishedAtOverride || item.publishedAt || item.createdAt;
+  const shareUrl = `${getSiteUrl()}/${locale}/news/${item.id}`;
 
   return (
     <div className="container-shell space-y-8 py-10">
@@ -75,6 +132,8 @@ export default async function NewsDetailPage({
           </span>
         ))}
       </section>
+
+      <ShareDialog url={shareUrl} title={title} locale={locale} />
 
       <div className="flex items-center justify-between border-t border-border pt-6 text-sm">
         <Link href={item.url} className="text-primary" target="_blank" rel="noreferrer">

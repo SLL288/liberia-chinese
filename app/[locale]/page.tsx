@@ -1,11 +1,52 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { CategoryCard } from '@/components/CategoryCard';
 import { PostCard } from '@/components/PostCard';
 import { getBanners, getCategories, getFeaturedPosts, getLatestPosts } from '@/lib/data';
+import { absoluteUrl, getSiteUrl } from '@/lib/metadata';
+import { truncateForShare } from '@/lib/share';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const title = locale === 'zh' ? '利比里亚华人分类信息平台' : 'Liberia Chinese Hub';
+  const description =
+    locale === 'zh'
+      ? '分类信息｜求职招聘｜租房二手｜商家名录｜政策资讯'
+      : 'Classifieds, jobs, housing, business directory, and policy news.';
+  const url = `${getSiteUrl()}/${locale}`;
+  const imageUrl = absoluteUrl('/og/default-home.jpg');
+  const ogImage = absoluteUrl(`/api/og?type=home&title=${encodeURIComponent(title)}`);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: truncateForShare(title, locale),
+      description,
+      url,
+      siteName: locale === 'zh' ? '利比里亚华人' : 'Liberia Chinese',
+      locale: locale === 'zh' ? 'zh_CN' : 'en_US',
+      type: 'website',
+      images: [{ url: ogImage, width: 1200, height: 630 }, { url: imageUrl }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: truncateForShare(title, locale),
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

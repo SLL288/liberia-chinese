@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
@@ -5,8 +6,64 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { getPostById } from '@/lib/data';
+import { ShareDialog } from '@/components/ShareDialog';
+import { absoluteUrl, getSiteUrl } from '@/lib/metadata';
+import { clampDescription, truncateForShare, isDataUrl } from '@/lib/share';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+  const post = await getPostById(id);
+
+  if (!post) {
+    return {};
+  }
+
+  const title = post.title;
+  const rawImage = post.images[0]?.url || null;
+  const image = rawImage && !isDataUrl(rawImage) ? absoluteUrl(rawImage) : absoluteUrl('/og/default-post.jpg');
+  const priceLabel = post.price
+    ? formatCurrency(Number(post.price), post.currency, locale === 'zh' ? 'zh-CN' : 'en-US')
+    : locale === 'zh'
+    ? '面议'
+    : 'Negotiable';
+  const location = [post.city, post.region].filter(Boolean).join(' ');
+  const descBase = `${priceLabel}${location ? ` · ${location}` : ''} · ${post.description}`;
+  const description = clampDescription(descBase, locale === 'zh' ? 100 : 160);
+  const url = `${getSiteUrl()}/${locale}/posts/${post.id}`;
+  const ogImage = absoluteUrl(
+    `/api/og?type=post&title=${encodeURIComponent(title)}&price=${encodeURIComponent(
+      priceLabel
+    )}&city=${encodeURIComponent(location)}`
+  );
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: truncateForShare(title, locale),
+      description,
+      url,
+      siteName: locale === 'zh' ? '利比里亚华人' : 'Liberia Chinese',
+      locale: locale === 'zh' ? 'zh_CN' : 'en_US',
+      type: 'article',
+      images: [{ url: ogImage, width: 1200, height: 630 }, { url: image }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: truncateForShare(title, locale),
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function PostDetailPage({
   params,
@@ -26,6 +83,7 @@ export default async function PostDetailPage({
     : locale === 'zh'
     ? '面议'
     : 'Negotiable';
+  const shareUrl = `${getSiteUrl()}/${locale}/posts/${post.id}`;
 
   return (
     <div className="container-shell space-y-8 py-10">
@@ -92,6 +150,7 @@ export default async function PostDetailPage({
                   ? '复制链接分享给朋友或群组。'
                   : 'Share this listing with your community.'}
               </p>
+              <ShareDialog url={shareUrl} title={post.title} locale={locale} />
             </CardContent>
           </Card>
         </aside>

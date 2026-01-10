@@ -14,14 +14,17 @@ export const metadata: Metadata = {
   },
   description: '利比里亚华人分类信息与社区门户平台',
   metadataBase: new URL(siteUrl),
+  icons: {
+    icon: '/favicon.ico',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    siteName: 'Liberia Chinese Hub',
+    siteName: 'Liberia Chinese',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og/default-home.jpg',
         width: 1200,
         height: 630,
       },
