@@ -29,7 +29,7 @@ export async function summarizeArticleZh(text: string, title: string | null) {
 
   const input = `标题：${title || '未在原文中明确说明'}\n\n正文：${text}`;
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export async function summarizeArticleZh(text: string, title: string | null) {
     },
     body: JSON.stringify({
       model: 'gpt-4o-mini',
-      input: [
+      messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: input },
       ],
@@ -52,7 +52,7 @@ export async function summarizeArticleZh(text: string, title: string | null) {
   }
 
   const data = await response.json();
-  const textOutput = data?.output?.[0]?.content?.[0]?.text ?? '{}';
+  const textOutput = data?.choices?.[0]?.message?.content ?? '{}';
   let parsed: SummaryResult;
   try {
     parsed = JSON.parse(textOutput);
