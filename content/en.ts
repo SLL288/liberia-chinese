@@ -68,7 +68,7 @@ const en = {
     stepDetails: 'Listing Details',
     stepContact: 'Contact Info',
     stepReview: 'Review',
-    hint: 'All posts are reviewed before they go live.',
+    hint: 'Posts go live immediately after submission.',
   },
   auth: {
     hint: 'Sign in with phone OTP or email to publish and manage listings.',

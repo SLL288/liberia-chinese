@@ -68,7 +68,7 @@ const zh = {
     stepDetails: '基本信息',
     stepContact: '联系方式',
     stepReview: '发布确认',
-    hint: '所有信息需审核后发布。',
+    hint: '提交后将自动发布。',
   },
   auth: {
     hint: '使用手机号验证码或邮箱登录，发布与管理你的信息。',

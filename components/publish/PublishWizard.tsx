@@ -16,6 +16,7 @@ const steps = ['details', 'contact', 'review'] as const;
 
 export function PublishWizard({ locale, categories }: PublishWizardProps) {
   const [stepIndex, setStepIndex] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const [formState, setFormState] = useState({
     title: '',
     description: '',
@@ -24,8 +25,8 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
     categoryId: '',
     city: '',
     region: '',
-    imageUrls: '',
   });
+  const [images, setImages] = useState<{ id: string; url: string; name: string }[]>([]);
   const router = useRouter();
   const step = steps[stepIndex];
 
@@ -37,6 +38,8 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     const payload = {
       title: formState.title,
       description: formState.description,
@@ -45,9 +48,7 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
       categoryId: formState.categoryId,
       city: formState.city,
       region: formState.region,
-      imageUrls: formState.imageUrls
-        ? formState.imageUrls.split(',').map((url) => url.trim())
-        : [],
+      imageUrls: images.map((image) => image.url),
     };
 
     const response = await fetch('/api/posts', {
@@ -62,6 +63,28 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
       const data = await response.json();
       router.push(`/${locale}/posts/${data.id}`);
     }
+    setSubmitting(false);
+  };
+
+  const handleFiles = (fileList: FileList | File[]) => {
+    const files = Array.from(fileList);
+    files.forEach((file) => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const url = typeof reader.result === 'string' ? reader.result : '';
+        if (!url) return;
+        setImages((prev) => [
+          ...prev,
+          { id: `${file.name}-${file.lastModified}`, url, name: file.name },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (id: string) => {
+    setImages((prev) => prev.filter((image) => image.id !== id));
   };
 
   return (
@@ -120,12 +143,53 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
             onChange={(e) => updateField('description', e.target.value)}
             className="md:col-span-2"
           />
-          <Input
-            placeholder={locale === 'zh' ? '图片链接（逗号分隔）' : 'Image URLs (comma separated)'}
-            value={formState.imageUrls}
-            onChange={(e) => updateField('imageUrls', e.target.value)}
+          <div
             className="md:col-span-2"
-          />
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              event.preventDefault();
+              if (event.dataTransfer.files.length) {
+                handleFiles(event.dataTransfer.files);
+              }
+            }}
+          >
+            <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/40 px-6 py-8 text-center text-sm text-muted-foreground">
+              <span>
+                {locale === 'zh'
+                  ? '拖拽图片到此处，或点击上传'
+                  : 'Drag photos here or click to upload'}
+              </span>
+              <span className="mt-2 text-xs">
+                {locale === 'zh' ? '图片将以本地占位形式保存。' : 'Images are stored as local placeholders.'}
+              </span>
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(event) => {
+                  if (event.target.files) handleFiles(event.target.files);
+                }}
+              />
+            </label>
+            {images.length > 0 ? (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                {images.map((image) => (
+                  <div key={image.id} className="relative overflow-hidden rounded-xl border border-border">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={image.url} alt={image.name} className="h-32 w-full object-cover" />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-1 text-xs text-muted-foreground"
+                      onClick={() => removeImage(image.id)}
+                    >
+                      {locale === 'zh' ? '移除' : 'Remove'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </div>
       )}
 
@@ -142,7 +206,7 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
           <h3 className="text-lg font-semibold">{formState.title || '...'}</h3>
           <p className="mt-2 text-sm text-muted-foreground">{formState.description || '...'}</p>
           <div className="mt-4 text-sm text-muted-foreground">
-            {locale === 'zh' ? '确认后信息将进入审核队列。' : 'Submit to moderation queue.'}
+            {locale === 'zh' ? '确认后将自动发布。' : 'Publish immediately after submission.'}
           </div>
         </div>
       )}
@@ -156,7 +220,9 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
         {stepIndex < steps.length - 1 ? (
           <Button onClick={nextStep}>{locale === 'zh' ? '下一步' : 'Next'}</Button>
         ) : (
-          <Button onClick={handleSubmit}>{locale === 'zh' ? '提交发布' : 'Submit'}</Button>
+          <Button onClick={handleSubmit} disabled={submitting}>
+            {submitting ? (locale === 'zh' ? '提交中…' : 'Submitting...') : locale === 'zh' ? '提交发布' : 'Submit'}
+          </Button>
         )}
       </div>
     </div>

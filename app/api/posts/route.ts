@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       currency: data.currency,
       city: data.city,
       region: data.region,
-      status: 'PENDING',
+      status: 'ACTIVE',
       images: data.imageUrls?.length
         ? {
             create: data.imageUrls.map((url, index) => ({
