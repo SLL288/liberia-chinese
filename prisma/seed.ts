@@ -68,17 +68,28 @@ const newsSources = [
 ];
 
 async function main() {
-  const adminId = randomUUID();
-  const admin = await prisma.user.create({
-    data: {
-      id: adminId,
-      email: 'admin@local.test',
-      name: 'Admin',
-      role: 'ADMIN',
-      wechat: 'admin_wechat',
-      phone: '+231000000000',
-    },
-  });
+  const adminEmail = 'admin@local.test';
+  const existingAdmin = await prisma.user.findFirst({ where: { email: adminEmail } });
+  const admin = existingAdmin
+    ? await prisma.user.update({
+        where: { id: existingAdmin.id },
+        data: {
+          name: 'Admin',
+          role: 'ADMIN',
+          wechat: 'admin_wechat',
+          phone: '+231000000000',
+        },
+      })
+    : await prisma.user.create({
+        data: {
+          id: randomUUID(),
+          email: adminEmail,
+          name: 'Admin',
+          role: 'ADMIN',
+          wechat: 'admin_wechat',
+          phone: '+231000000000',
+        },
+      });
 
   for (const category of categories) {
     await prisma.category.upsert({
