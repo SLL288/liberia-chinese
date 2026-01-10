@@ -8,10 +8,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let categories: { slug: string }[] = [];
   let posts: { id: string; updatedAt: Date }[] = [];
+  let newsItems: { id: string; updatedAt: Date }[] = [];
   try {
-    [categories, posts] = await Promise.all([
+    [categories, posts, newsItems] = await Promise.all([
       prisma.category.findMany({ where: { isActive: true }, select: { slug: true } }),
       prisma.post.findMany({ where: { status: 'ACTIVE' }, select: { id: true, updatedAt: true } }),
+      prisma.newsItem.findMany({
+        where: { status: 'READY', isHidden: false },
+        select: { id: true, updatedAt: true },
+      }),
     ]);
   } catch {
     // Allow sitemap to render even if the database isn't configured yet.
@@ -29,6 +34,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/en/business',
     '/zh/login',
     '/en/login',
+    '/zh/news',
+    '/en/news',
   ];
 
   const categoryRoutes = categories.flatMap((category) => [
@@ -41,9 +48,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/en/posts/${post.id}`, lastModified: post.updatedAt },
   ]);
 
+  const newsRoutes = newsItems.flatMap((item) => [
+    { url: `${siteUrl}/zh/news/${item.id}`, lastModified: item.updatedAt },
+    { url: `${siteUrl}/en/news/${item.id}`, lastModified: item.updatedAt },
+  ]);
+
   return [
     ...baseRoutes.map((route) => ({ url: `${siteUrl}${route}`, lastModified: new Date() })),
     ...categoryRoutes,
     ...postRoutes,
+    ...newsRoutes,
   ];
 }

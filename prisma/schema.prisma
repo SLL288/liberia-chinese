@@ -23,6 +23,7 @@ model User {
   reports   Report[]
   orders    Order[]
   auditLogs AuditLog[]
+  editedNewsItems NewsItem[] @relation("NewsItemEditor")
 }
 
 model Category {
@@ -136,7 +137,64 @@ model AuditLog {
   entityType  String
   entityId    String?
   detail      String?
+  metadata    Json?
   createdAt   DateTime @default(now())
 
   actor User? @relation(fields: [actorUserId], references: [id])
+}
+
+model NewsSource {
+  id        String    @id @default(cuid())
+  name      String
+  lang      String
+  website   String
+  rssUrl    String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  items     NewsItem[]
+}
+
+enum NewsStatus {
+  QUEUED
+  PROCESSING
+  READY
+  FAILED
+}
+
+model NewsItem {
+  id           String     @id @default(cuid())
+  sourceId     String
+  source       NewsSource @relation(fields: [sourceId], references: [id])
+  url          String     @unique
+
+  title        String?
+  publishedAt  DateTime?
+  fetchedAt    DateTime?
+  status       NewsStatus @default(QUEUED)
+  error        String?
+  ogImageUrl   String?
+  imagePath    String?
+  contentHash  String?
+  rawExcerpt   String?    @db.Text
+  summaryZh    String?    @db.Text
+  whyItMatters String?    @db.Text
+  tags         String[]   @default([])
+  riskFlags    String[]   @default([])
+
+  titleOverride        String?
+  publishedAtOverride  DateTime?
+  summaryOverrideZh    String?   @db.Text
+  whyItMattersOverride String?   @db.Text
+  tagsOverride         String[]  @default([])
+  imageOverrideUrl     String?
+  isHidden             Boolean   @default(false)
+  isFeatured           Boolean   @default(false)
+  editorNote           String?   @db.Text
+  editedByUserId       String?   @db.Uuid
+  editedAt             DateTime?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  editedBy User? @relation("NewsItemEditor", fields: [editedByUserId], references: [id])
 }

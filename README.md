@@ -42,6 +42,38 @@ npx prisma migrate deploy
 - 管理员：
   - 设置 `ADMIN_PHONE`，登录同手机号会自动赋予 `ADMIN`
 
+## 政策资讯模块（News）
+
+### 环境变量
+
+- `OPENAI_API_KEY`：OpenAI Responses API 密钥（服务端）
+- `CRON_SECRET`：Vercel Cron 访问密钥（Authorization Bearer）
+- `GITHUB_CRON_SECRET`：GitHub Actions 调度密钥（Authorization Bearer）
+- `SUPABASE_URL`：用于 Supabase Storage 公共 URL（可选）
+- `SUPABASE_STORAGE_BUCKET`：图片桶名称（默认 `news-images`）
+- `NEXT_PUBLIC_SITE_URL`：站点 URL（用于 sitemap）
+
+### 迁移与种子
+
+```bash
+npx prisma migrate deploy
+npm run prisma:seed
+```
+
+### Cron（Vercel）
+
+```
+POST /api/cron/news
+Authorization: Bearer <CRON_SECRET>
+```
+
+### GitHub Actions（可选）
+
+1. 启用 `.github/workflows/news-cron.yml`
+2. 在仓库设置中添加 Secrets：
+   - `GITHUB_CRON_SECRET`
+3. 默认每 6 小时触发一次，调用 `/api/cron/news?source=github`
+
 ## 数据种子
 
 ```bash
@@ -53,6 +85,7 @@ npm run prisma:seed
 - 示例帖子
 - 示例 Banner
 - 推广价格表
+- 政策资讯来源
 
 ## 部署到 Vercel
 

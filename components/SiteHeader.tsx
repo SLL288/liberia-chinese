@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 const navItems = [
   { href: '/categories', labelKey: 'nav.categories' },
   { href: '/search', labelKey: 'nav.search' },
+  { href: '/news', labelKey: 'nav.news' },
   { href: '/business', labelKey: 'nav.business' },
   { href: '/publish', labelKey: 'nav.publish' },
   { href: '/dashboard', labelKey: 'nav.dashboard' },

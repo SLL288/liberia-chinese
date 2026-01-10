@@ -19,6 +19,54 @@ const categories = [
   { slug: 'lost-found', nameZh: '失物招领', nameEn: 'Lost & Found', sortOrder: 13 },
 ];
 
+const newsSources = [
+  {
+    name: 'Ministry of Foreign Affairs (Liberia)',
+    lang: 'en',
+    website: 'https://mofa.gov.lr',
+  },
+  {
+    name: 'Liberia Immigration Service',
+    lang: 'en',
+    website: 'https://lis.gov.lr',
+  },
+  {
+    name: 'Executive Mansion Press Releases',
+    lang: 'en',
+    website: 'https://emansion.gov.lr',
+  },
+  {
+    name: 'Ministry of Finance & Development Planning',
+    lang: 'en',
+    website: 'https://mfdp.gov.lr',
+  },
+  {
+    name: 'Ministry of Commerce & Industry',
+    lang: 'en',
+    website: 'https://moci.gov.lr',
+  },
+  {
+    name: 'Liberia Revenue Authority',
+    lang: 'en',
+    website: 'https://revenue.lra.gov.lr',
+  },
+  {
+    name: 'Central Bank of Liberia',
+    lang: 'en',
+    website: 'https://cbl.org.lr',
+  },
+  {
+    name: 'Chinese Embassy in Liberia',
+    lang: 'zh',
+    website: 'https://lr.china-embassy.gov.cn',
+  },
+  {
+    name: 'MOFCOM Economic & Commercial Office (Liberia)',
+    lang: 'zh',
+    website: 'https://lr.mofcom.gov.cn',
+  },
+];
+
 async function main() {
   const adminId = randomUUID();
   const admin = await prisma.user.create({
@@ -44,6 +92,11 @@ async function main() {
       create: category,
     });
   }
+
+  await prisma.newsSource.createMany({
+    data: newsSources,
+    skipDuplicates: true,
+  });
 
   const housing = await prisma.category.findUnique({ where: { slug: 'housing' } });
   const jobs = await prisma.category.findUnique({ where: { slug: 'jobs' } });

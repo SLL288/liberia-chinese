@@ -46,11 +46,12 @@ export default async function AdminPage({
     take: 50,
   });
 
-  const [postCount, pendingCount, reportCount, bannerCount] = await Promise.all([
+  const [postCount, pendingCount, reportCount, bannerCount, newsCount] = await Promise.all([
     prisma.post.count(),
     prisma.post.count({ where: { status: 'PENDING' } }),
     prisma.report.count({ where: { status: 'PENDING' } }),
     prisma.banner.count(),
+    prisma.newsItem.count(),
   ]);
 
   return (
@@ -61,7 +62,7 @@ export default async function AdminPage({
           <Link href="/logout">{locale === 'zh' ? '退出登录' : 'Sign out'}</Link>
         </Button>
       </div>
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardContent className="space-y-2 p-6">
             <p className="text-sm text-muted-foreground">Posts</p>
@@ -84,6 +85,17 @@ export default async function AdminPage({
           <CardContent className="space-y-2 p-6">
             <p className="text-sm text-muted-foreground">{t('admin.banners')}</p>
             <p className="text-2xl font-semibold">{bannerCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="space-y-2 p-6">
+            <p className="text-sm text-muted-foreground">{t('admin.news')}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-2xl font-semibold">{newsCount}</p>
+              <Link href={`/${locale}/admin/news`} className="text-sm text-primary">
+                {t('news.adminEdit')}
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>
