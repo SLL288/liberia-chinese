@@ -81,8 +81,17 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
         return;
       }
 
-      const errorText = await response.text();
-      setSubmitError(errorText || (locale === 'zh' ? '提交失败，请稍后重试。' : 'Submit failed.'));
+      let errorMessage = '';
+      try {
+        const errorJson = await response.json();
+        errorMessage = typeof errorJson?.error === 'string' ? errorJson.error : '';
+      } catch (err) {
+        errorMessage = '';
+      }
+      if (!errorMessage) {
+        errorMessage = locale === 'zh' ? '提交失败，请稍后重试。' : 'Submit failed.';
+      }
+      setSubmitError(errorMessage);
       setSubmitting(false);
     } catch (error) {
       setSubmitError(locale === 'zh' ? '提交失败，请检查网络。' : 'Submit failed. Check your connection.');
