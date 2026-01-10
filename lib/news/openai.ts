@@ -67,7 +67,11 @@ export async function summarizeArticleZh(text: string, title: string | null) {
   const whyItMatters = parsed.whyItMatters || '未在原文中明确说明';
   const tags = Array.isArray(parsed.tags) ? parsed.tags.filter(Boolean).slice(0, 8) : [];
   const riskFlags = Array.isArray(parsed.riskFlags)
-    ? parsed.riskFlags.filter((flag) => RISK_FLAGS.includes(flag)).slice(0, 3)
+    ? parsed.riskFlags
+        .filter((flag): flag is (typeof RISK_FLAGS)[number] =>
+          RISK_FLAGS.includes(flag as (typeof RISK_FLAGS)[number])
+        )
+        .slice(0, 3)
     : [];
 
   return {
