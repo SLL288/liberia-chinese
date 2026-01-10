@@ -55,7 +55,7 @@ export default function LoginPage() {
       method === 'email'
         ? await supabase.auth.signInWithOtp({
             email,
-            options: { emailRedirectTo: `${origin}/auth/callback` },
+            options: { emailRedirectTo: `${origin}/auth/callback?next=/${locale}/dashboard` },
           })
         : await supabase.auth.signInWithOtp({
             phone,
@@ -90,7 +90,7 @@ export default function LoginPage() {
     }
     if (data.session) {
       await fetch('/api/auth/sync', { method: 'POST' });
-      window.location.href = `/${locale}`;
+      window.location.href = `/${locale}/dashboard`;
     }
   };
 
