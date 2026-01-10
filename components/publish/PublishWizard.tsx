@@ -17,6 +17,7 @@ const steps = ['details', 'contact', 'review'] as const;
 export function PublishWizard({ locale, categories }: PublishWizardProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formState, setFormState] = useState({
     title: '',
     description: '',
@@ -30,8 +31,12 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
   const router = useRouter();
   const step = steps[stepIndex];
 
-  const nextStep = () => setStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
-  const prevStep = () => setStepIndex((prev) => Math.max(prev - 1, 0));
+  const nextStep = () => {
+    if (!submitting) setStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
+  };
+  const prevStep = () => {
+    if (!submitting) setStepIndex((prev) => Math.max(prev - 1, 0));
+  };
 
   const updateField = (field: string, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -40,6 +45,7 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
   const handleSubmit = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
     const payload = {
       title: formState.title,
       description: formState.description,
@@ -51,19 +57,28 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
       imageUrls: images.map((image) => image.url),
     };
 
-    const response = await fetch('/api/posts', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      router.push(`/${locale}/posts/${data.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        router.push(`/${locale}/posts/${data.id}`);
+        return;
+      }
+
+      const errorText = await response.text();
+      setSubmitError(errorText || (locale === 'zh' ? '提交失败，请稍后重试。' : 'Submit failed.'));
+      setSubmitting(false);
+    } catch (error) {
+      setSubmitError(locale === 'zh' ? '提交失败，请检查网络。' : 'Submit failed. Check your connection.');
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const handleFiles = (fileList: FileList | File[]) => {
@@ -213,18 +228,21 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
 
       <div className="flex gap-3">
         {stepIndex > 0 && (
-          <Button variant="outline" onClick={prevStep}>
+          <Button variant="outline" onClick={prevStep} disabled={submitting}>
             {locale === 'zh' ? '返回' : 'Back'}
           </Button>
         )}
         {stepIndex < steps.length - 1 ? (
-          <Button onClick={nextStep}>{locale === 'zh' ? '下一步' : 'Next'}</Button>
+          <Button onClick={nextStep} disabled={submitting}>
+            {locale === 'zh' ? '下一步' : 'Next'}
+          </Button>
         ) : (
           <Button onClick={handleSubmit} disabled={submitting}>
             {submitting ? (locale === 'zh' ? '提交中…' : 'Submitting...') : locale === 'zh' ? '提交发布' : 'Submit'}
           </Button>
         )}
       </div>
+      {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
     </div>
   );
 }
