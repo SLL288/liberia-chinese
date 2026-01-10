@@ -44,8 +44,17 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
 
   const handleSubmit = async () => {
     if (submitting) return;
-    setSubmitting(true);
     setSubmitError(null);
+    if (!formState.title.trim() || formState.description.trim().length < 10 || !formState.categoryId) {
+      setSubmitError(
+        locale === 'zh'
+          ? '请填写标题、分类和至少 10 个字的描述。'
+          : 'Please provide a title, category, and a longer description.'
+      );
+      return;
+    }
+
+    setSubmitting(true);
     const payload = {
       title: formState.title,
       description: formState.description,
