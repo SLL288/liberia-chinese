@@ -48,7 +48,7 @@ CREATE TABLE "NewsItem" (
   "isHidden" BOOLEAN NOT NULL DEFAULT false,
   "isFeatured" BOOLEAN NOT NULL DEFAULT false,
   "editorNote" TEXT,
-  "editedByUserId" UUID,
+  "editedByUserId" TEXT,
   "editedAt" TIMESTAMP(3),
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP(3) NOT NULL,

@@ -190,7 +190,7 @@ model NewsItem {
   isHidden             Boolean   @default(false)
   isFeatured           Boolean   @default(false)
   editorNote           String?   @db.Text
-  editedByUserId       String?   @db.Uuid
+  editedByUserId       String?
   editedAt             DateTime?
 
   createdAt    DateTime  @default(now())
