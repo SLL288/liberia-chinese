@@ -141,6 +141,20 @@ export default async function AdminPage({
                     <Button name="action" value="ban" size="sm" variant="destructive">
                       {locale === 'zh' ? '封禁' : 'Ban'}
                     </Button>
+                    <Button
+                      name="action"
+                      value={post.status === 'ACTIVE' ? 'hide' : 'show'}
+                      size="sm"
+                      variant="outline"
+                    >
+                      {post.status === 'ACTIVE'
+                        ? locale === 'zh'
+                          ? '隐藏'
+                          : 'Hide'
+                        : locale === 'zh'
+                        ? '显示'
+                        : 'Show'}
+                    </Button>
                     <Button name="action" value="feature" size="sm" variant="outline">
                       {locale === 'zh' ? '推荐' : 'Feature'}
                     </Button>

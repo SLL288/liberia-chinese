@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 
 const schema = z.object({
   postId: z.string(),
-  action: z.enum(['approve', 'ban', 'delete', 'feature', 'top']),
+  action: z.enum(['approve', 'ban', 'delete', 'feature', 'top', 'hide', 'show']),
 });
 
 export async function POST(request: Request) {
@@ -35,6 +35,12 @@ export async function POST(request: Request) {
   }
   if (action === 'ban') {
     updateData = { status: 'BANNED' };
+  }
+  if (action === 'hide') {
+    updateData = { status: 'BANNED' };
+  }
+  if (action === 'show') {
+    updateData = { status: 'ACTIVE' };
   }
   if (action === 'feature') {
     updateData = { isFeatured: true, featuredUntil: new Date(now.getTime() + 7 * 86400000) };

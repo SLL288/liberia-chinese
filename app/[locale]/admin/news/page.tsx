@@ -80,6 +80,16 @@ export default async function AdminNewsPage({
         </form>
       </div>
 
+      <div className="rounded-2xl border border-border bg-white p-6">
+        <h2 className="text-lg font-semibold">{t('news.adminSync')}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t('news.adminSyncHint')}</p>
+        <form className="mt-4" action="/api/admin/news/sync" method="post">
+          <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm text-white">
+            {t('news.adminSyncAction')}
+          </button>
+        </form>
+      </div>
+
       <form className="flex flex-wrap gap-3" method="get">
         <select name="status" defaultValue={status || ''} className="h-10 rounded-md border px-3 text-sm">
           <option value="">{t('news.status')}</option>
@@ -125,12 +135,21 @@ export default async function AdminNewsPage({
                   {item.source.name} · {item.status}
                 </p>
               </div>
-              <Link
-                href={`/${locale}/admin/news/${item.id}`}
-                className="text-sm text-primary"
-              >
-                {t('news.adminEdit')}
-              </Link>
+              <div className="flex items-center gap-3">
+                <form action="/api/admin/news/visibility" method="post">
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="hidden" name="isHidden" value={item.isHidden ? 'false' : 'true'} />
+                  <button className="text-sm text-primary" type="submit">
+                    {item.isHidden ? (locale === 'zh' ? '显示' : 'Show') : (locale === 'zh' ? '隐藏' : 'Hide')}
+                  </button>
+                </form>
+                <Link
+                  href={`/${locale}/admin/news/${item.id}`}
+                  className="text-sm text-primary"
+                >
+                  {t('news.adminEdit')}
+                </Link>
+              </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
               {item.isFeatured ? <span>{t('news.featured')}</span> : null}
