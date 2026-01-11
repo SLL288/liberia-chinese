@@ -16,6 +16,10 @@ export default async function AdminNewsPage({
   const { status, source, tag, hidden } = await searchParams;
   const t = await getTranslations();
   const admin = await requireAdmin();
+  const statusLabels =
+    locale === 'zh'
+      ? { QUEUED: '排队', PROCESSING: '处理中', READY: '已发布', FAILED: '失败' }
+      : { QUEUED: 'Queued', PROCESSING: 'Processing', READY: 'Ready', FAILED: 'Failed' };
   if (!admin) {
     return (
       <div className="container-shell py-16">
