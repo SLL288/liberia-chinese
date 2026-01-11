@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth';
+import { AdminNewsList } from '@/components/admin/AdminNewsList';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,12 +16,6 @@ export default async function AdminNewsPage({
   const { status, source, tag, hidden } = await searchParams;
   const t = await getTranslations();
   const admin = await requireAdmin();
-  const statusLabels =
-    locale === 'zh'
-      ? { QUEUED: '排队', PROCESSING: '处理中', READY: '已发布', FAILED: '失败' }
-      : { QUEUED: 'Queued', PROCESSING: 'Processing', READY: 'Ready', FAILED: 'Failed' };
-  const isPublished = (value: string) => value === 'READY';
-
   if (!admin) {
     return (
       <div className="container-shell py-16">
@@ -59,9 +53,9 @@ export default async function AdminNewsPage({
           <h1 className="text-3xl font-semibold text-display">{t('admin.news')}</h1>
           <p className="text-sm text-muted-foreground">{t('news.adminQueue')}</p>
         </div>
-        <Link href={`/${locale}/admin`} className="text-sm text-primary">
+        <a href={`/${locale}/admin`} className="text-sm text-primary">
           {t('admin.back')}
-        </Link>
+        </a>
       </div>
 
       <div className="rounded-2xl border border-border bg-white p-6">
@@ -128,62 +122,12 @@ export default async function AdminNewsPage({
         <button className="h-10 rounded-md bg-primary px-4 text-sm text-white" type="submit">
           {t('news.filter')}
         </button>
-        <Link href={`/${locale}/admin/news`} className="h-10 rounded-md border px-4 text-sm">
+        <a href={`/${locale}/admin/news`} className="h-10 rounded-md border px-4 text-sm">
           {t('news.reset')}
-        </Link>
+        </a>
       </form>
 
-      <div className="space-y-4">
-        {items.map((item) => (
-          <div key={item.id} className="rounded-2xl border border-border bg-white p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold">{item.titleOverride || item.title || item.url}</h3>
-                <p className="text-xs text-muted-foreground">
-                  {item.source.name} · {statusLabels[item.status]}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <form action="/api/admin/news/visibility" method="post">
-                  <input type="hidden" name="id" value={item.id} />
-                  <input type="hidden" name="isHidden" value={item.isHidden ? 'false' : 'true'} />
-                  <button className="text-sm text-primary" type="submit">
-                    {item.isHidden ? t('news.showAction') : t('news.hideAction')}
-                  </button>
-                </form>
-                <form action="/api/admin/news/visibility" method="post">
-                  <input type="hidden" name="id" value={item.id} />
-                  <input type="hidden" name="isHidden" value="false" />
-                  <input
-                    type="hidden"
-                    name="status"
-                    value={isPublished(item.status) ? 'FAILED' : 'READY'}
-                  />
-                  <button className="text-sm text-primary" type="submit">
-                    {isPublished(item.status) ? t('news.unpublishAction') : t('news.publishAction')}
-                  </button>
-                </form>
-                <form action="/api/admin/news/delete" method="post">
-                  <input type="hidden" name="id" value={item.id} />
-                  <button className="text-sm text-primary" type="submit">
-                    {t('common.delete')}
-                  </button>
-                </form>
-                <Link
-                  href={`/${locale}/admin/news/${item.id}`}
-                  className="text-sm text-primary"
-                >
-                  {t('news.adminEdit')}
-                </Link>
-              </div>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              {item.isFeatured ? <span>{t('news.featured')}</span> : null}
-              {item.isHidden ? <span>{t('news.hidden')}</span> : null}
-            </div>
-          </div>
-        ))}
-      </div>
+      <AdminNewsList items={items} locale={locale} />
     </div>
   );
 }

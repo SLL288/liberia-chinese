@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { AdminPostList } from '@/components/admin/AdminPostList';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,20 +20,6 @@ export default async function AdminPage({
   const { locale } = await params;
   const t = await getTranslations();
   const admin = await requireAdmin();
-  const postStatusLabel = (value: string) => {
-    if (locale === 'zh') {
-      if (value === 'PENDING') return '待审核';
-      if (value === 'ACTIVE') return '已发布';
-      if (value === 'BANNED') return '已封禁';
-      if (value === 'EXPIRED') return '已过期';
-      return value;
-    }
-    if (value === 'PENDING') return 'Pending';
-    if (value === 'ACTIVE') return 'Active';
-    if (value === 'BANNED') return 'Banned';
-    if (value === 'EXPIRED') return 'Expired';
-    return value;
-  };
 
   if (!admin) {
     return (
@@ -137,52 +124,7 @@ export default async function AdminPage({
             <Button type="submit">{locale === 'zh' ? '筛选' : 'Filter'}</Button>
           </form>
 
-          <div className="space-y-3">
-            {posts.map((post) => (
-              <div key={post.id} className="rounded-xl border border-border bg-white p-4">
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h3 className="font-semibold">{post.title}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {postStatusLabel(post.status)} · {locale === 'zh' ? post.category.nameZh : post.category.nameEn}
-                    </p>
-                  </div>
-                  <form action="/api/admin/posts" method="post" className="flex flex-wrap gap-2">
-                    <input type="hidden" name="postId" value={post.id} />
-                    <Button name="action" value="approve" size="sm">
-                      {locale === 'zh' ? '通过' : 'Approve'}
-                    </Button>
-                    <Button name="action" value="ban" size="sm" variant="destructive">
-                      {locale === 'zh' ? '封禁' : 'Ban'}
-                    </Button>
-                    <Button
-                      name="action"
-                      value={post.status === 'ACTIVE' ? 'hide' : 'show'}
-                      size="sm"
-                      variant="outline"
-                    >
-                      {post.status === 'ACTIVE'
-                        ? locale === 'zh'
-                          ? '隐藏'
-                          : 'Hide'
-                        : locale === 'zh'
-                        ? '显示'
-                        : 'Show'}
-                    </Button>
-                    <Button name="action" value="feature" size="sm" variant="outline">
-                      {locale === 'zh' ? '推荐' : 'Feature'}
-                    </Button>
-                    <Button name="action" value="top" size="sm" variant="outline">
-                      {locale === 'zh' ? '置顶' : 'Top'}
-                    </Button>
-                    <Button name="action" value="delete" size="sm" variant="ghost">
-                      {t('common.delete')}
-                    </Button>
-                  </form>
-                </div>
-              </div>
-            ))}
-          </div>
+          <AdminPostList posts={posts} locale={locale} />
         </CardContent>
       </Card>
     </div>

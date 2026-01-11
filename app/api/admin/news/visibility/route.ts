@@ -17,11 +17,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const formData = await request.formData();
+  const contentType = request.headers.get('content-type') || '';
+  const isJson = contentType.includes('application/json');
+  const body = isJson ? await request.json() : Object.fromEntries(await request.formData());
   const payload = schema.safeParse({
-    id: formData.get('id'),
-    isHidden: formData.get('isHidden'),
-    status: formData.get('status') || undefined,
+    id: body.id ?? null,
+    isHidden: body.isHidden ?? null,
+    status: body.status ?? undefined,
   });
 
   if (!payload.success) {
@@ -51,7 +53,11 @@ export async function POST(request: Request) {
     },
   });
 
-  const referer = request.headers.get('referer');
-  const redirectUrl = referer ? new URL(referer) : new URL('/zh/admin/news', request.url);
-  return NextResponse.redirect(redirectUrl, 303);
+  if (!isJson) {
+    const referer = request.headers.get('referer');
+    const redirectUrl = referer ? new URL(referer) : new URL('/zh/admin/news', request.url);
+    return NextResponse.redirect(redirectUrl, 303);
+  }
+
+  return NextResponse.json({ id, isHidden: hidden, status: status ?? null });
 }
