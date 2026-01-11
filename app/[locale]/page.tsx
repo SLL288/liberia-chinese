@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { CategoryCard } from '@/components/CategoryCard';
 import { PostCard } from '@/components/PostCard';
 import { getBanners, getCategories, getFeaturedPosts, getLatestPosts } from '@/lib/data';
+import { getNewsList } from '@/lib/news/queries';
+import { parseSummary } from '@/lib/news/format';
+import { getPublicImageUrl } from '@/lib/news/storage';
 import { absoluteUrl, getSiteUrl } from '@/lib/metadata';
 import { truncateForShare } from '@/lib/share';
 
@@ -54,17 +57,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   type CategoryItem = Awaited<ReturnType<typeof getCategories>>[number];
   type PostItem = Awaited<ReturnType<typeof getLatestPosts>>[number];
   type BannerItem = Awaited<ReturnType<typeof getBanners>>[number];
+  type NewsItem = Awaited<ReturnType<typeof getNewsList>>[number];
 
-  const [categories, featuredPosts, latestPosts, banners]: [
+  const [categories, featuredPosts, latestPosts, banners, newsItems]: [
     CategoryItem[],
     PostItem[],
     PostItem[],
     BannerItem[],
+    NewsItem[],
   ] = await Promise.all([
     getCategories(),
     getFeaturedPosts(),
     getLatestPosts(),
     getBanners('HOME_TOP'),
+    getNewsList({}),
   ]);
 
   return (
@@ -138,6 +144,74 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {featuredPosts.map((post) => (
               <PostCard key={post.id} locale={locale} post={post} />
             ))}
+          </div>
+        )}
+      </section>
+
+      <section className="container-shell space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-display">{t('news.title')}</h2>
+          <Link href={`/${locale}/news`} className="text-sm text-primary hover:underline">
+            {t('news.readMore')}
+          </Link>
+        </div>
+        {newsItems.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t('news.empty')}</p>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+            {newsItems.slice(0, 1).map((item) => {
+              const summary = parseSummary(item.summaryOverrideZh || item.summaryZh || '');
+              const image =
+                item.imageOverrideUrl ||
+                getPublicImageUrl(item.imagePath) ||
+                item.ogImageUrl ||
+                '/images/banners/home-top.svg';
+              const dateValue = item.publishedAtOverride || item.publishedAt || item.createdAt;
+              return (
+                <Link
+                  key={item.id}
+                  href={`/${locale}/news/${item.id}`}
+                  className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-6 shadow-sm transition hover:border-primary/40"
+                >
+                  <div className="overflow-hidden rounded-2xl border border-border">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={image} alt={item.title || ''} className="h-56 w-full object-cover" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="text-xs text-muted-foreground">
+                      {item.source.name} · {dateValue.toISOString().slice(0, 10)}
+                    </div>
+                    <h3 className="text-lg font-semibold text-display">
+                      {item.titleOverride || item.title || item.url}
+                    </h3>
+                    <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                      {summary.bullets.slice(0, 3).map((bullet, index) => (
+                        <li key={`${item.id}-home-${index}`}>{bullet}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </Link>
+              );
+            })}
+            <div className="space-y-3">
+              {newsItems.slice(1, 6).map((item) => {
+                const dateValue = item.publishedAtOverride || item.publishedAt || item.createdAt;
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/${locale}/news/${item.id}`}
+                    className="block rounded-xl border border-border bg-white px-4 py-3 text-sm transition hover:border-primary/40"
+                  >
+                    <div className="text-xs text-muted-foreground">
+                      {item.source.name} · {dateValue.toISOString().slice(0, 10)}
+                    </div>
+                    <div className="mt-2 text-base font-semibold text-display">
+                      {item.titleOverride || item.title || item.url}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
       </section>
