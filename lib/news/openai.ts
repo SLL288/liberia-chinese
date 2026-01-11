@@ -22,21 +22,21 @@ const SYSTEM_PROMPT = `你是严谨的中文政策资讯编辑。请基于原文
 - summaryBullets 与 summaryParagraph 为中文。`;
 
 export async function summarizeArticleZh(text: string, title: string | null) {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    throw new Error('OPENAI_API_KEY missing');
+    throw new Error('GROQ_API_KEY missing');
   }
 
   const input = `标题：${title || '未在原文中明确说明'}\n\n正文：${text}`;
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: 'llama-3.1-8b-instant',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: input },
@@ -48,7 +48,7 @@ export async function summarizeArticleZh(text: string, title: string | null) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`OpenAI error: ${response.status} ${errorText}`);
+    throw new Error(`Groq error: ${response.status} ${errorText}`);
   }
 
   const data = await response.json();
@@ -57,7 +57,7 @@ export async function summarizeArticleZh(text: string, title: string | null) {
   try {
     parsed = JSON.parse(textOutput);
   } catch (error) {
-    throw new Error('OpenAI JSON parse failed');
+    throw new Error('Groq JSON parse failed');
   }
 
   const summaryBullets = Array.isArray(parsed.summaryBullets)
