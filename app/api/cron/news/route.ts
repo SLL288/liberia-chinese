@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   const queued = await prisma.newsItem.findMany({
     where: { status: 'QUEUED' },
     orderBy: { createdAt: 'asc' },
-    take: 5,
+    take: 2,
   });
 
   const processed: string[] = [];

@@ -119,7 +119,7 @@ const zh = {
     whyItMatters: '与利比里亚华人社区的关联',
     adminIngest: '录入链接',
     adminSync: '同步资讯',
-    adminSyncHint: '从已配置来源抓取并处理最新 5 条资讯。',
+    adminSyncHint: '从已配置来源抓取并处理最新 2 条资讯。',
     adminSyncAction: '立即同步',
     adminEdit: '编辑资讯',
     adminQueue: '处理队列',

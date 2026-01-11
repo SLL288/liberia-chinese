@@ -119,7 +119,7 @@ const en = {
     whyItMatters: 'Why it matters',
     adminIngest: 'Ingest URL',
     adminSync: 'Sync news',
-    adminSyncHint: 'Fetch sources and process the latest 5 items.',
+    adminSyncHint: 'Fetch sources and process the latest 2 items.',
     adminSyncAction: 'Run sync',
     adminEdit: 'Edit news',
     adminQueue: 'Processing queue',
