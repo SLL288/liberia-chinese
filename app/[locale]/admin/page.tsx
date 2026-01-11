@@ -19,6 +19,20 @@ export default async function AdminPage({
   const { locale } = await params;
   const t = await getTranslations();
   const admin = await requireAdmin();
+  const postStatusLabel = (value: string) => {
+    if (locale === 'zh') {
+      if (value === 'PENDING') return '待审核';
+      if (value === 'ACTIVE') return '已发布';
+      if (value === 'BANNED') return '已封禁';
+      if (value === 'EXPIRED') return '已过期';
+      return value;
+    }
+    if (value === 'PENDING') return 'Pending';
+    if (value === 'ACTIVE') return 'Active';
+    if (value === 'BANNED') return 'Banned';
+    if (value === 'EXPIRED') return 'Expired';
+    return value;
+  };
 
   if (!admin) {
     return (
@@ -65,7 +79,7 @@ export default async function AdminPage({
       <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardContent className="space-y-2 p-6">
-            <p className="text-sm text-muted-foreground">Posts</p>
+            <p className="text-sm text-muted-foreground">{t('admin.posts')}</p>
             <p className="text-2xl font-semibold">{postCount}</p>
           </CardContent>
         </Card>
@@ -77,7 +91,7 @@ export default async function AdminPage({
         </Card>
         <Card>
           <CardContent className="space-y-2 p-6">
-            <p className="text-sm text-muted-foreground">Reports</p>
+            <p className="text-sm text-muted-foreground">{t('admin.reports')}</p>
             <p className="text-2xl font-semibold">{reportCount}</p>
           </CardContent>
         </Card>
@@ -107,10 +121,10 @@ export default async function AdminPage({
             <Input name="keyword" placeholder={locale === 'zh' ? '关键词' : 'Keyword'} defaultValue={query.keyword} />
             <Select name="status" defaultValue={query.status ?? ''}>
               <option value="">{locale === 'zh' ? '全部状态' : 'All Status'}</option>
-              <option value="PENDING">Pending</option>
-              <option value="ACTIVE">Active</option>
-              <option value="BANNED">Banned</option>
-              <option value="EXPIRED">Expired</option>
+              <option value="PENDING">{locale === 'zh' ? '待审核' : 'Pending'}</option>
+              <option value="ACTIVE">{locale === 'zh' ? '已发布' : 'Active'}</option>
+              <option value="BANNED">{locale === 'zh' ? '已封禁' : 'Banned'}</option>
+              <option value="EXPIRED">{locale === 'zh' ? '已过期' : 'Expired'}</option>
             </Select>
             <Select name="category" defaultValue={query.category ?? ''}>
               <option value="">{locale === 'zh' ? '全部分类' : 'All Categories'}</option>
@@ -130,7 +144,7 @@ export default async function AdminPage({
                   <div>
                     <h3 className="font-semibold">{post.title}</h3>
                     <p className="text-xs text-muted-foreground">
-                      {post.status} · {locale === 'zh' ? post.category.nameZh : post.category.nameEn}
+                      {postStatusLabel(post.status)} · {locale === 'zh' ? post.category.nameZh : post.category.nameEn}
                     </p>
                   </div>
                   <form action="/api/admin/posts" method="post" className="flex flex-wrap gap-2">
@@ -162,7 +176,7 @@ export default async function AdminPage({
                       {locale === 'zh' ? '置顶' : 'Top'}
                     </Button>
                     <Button name="action" value="delete" size="sm" variant="ghost">
-                      {locale === 'zh' ? '删除' : 'Delete'}
+                      {t('common.delete')}
                     </Button>
                   </form>
                 </div>

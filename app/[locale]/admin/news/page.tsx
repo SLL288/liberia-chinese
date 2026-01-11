@@ -16,6 +16,10 @@ export default async function AdminNewsPage({
   const { status, source, tag, hidden } = await searchParams;
   const t = await getTranslations();
   const admin = await requireAdmin();
+  const statusLabels =
+    locale === 'zh'
+      ? { QUEUED: '排队', PROCESSING: '处理中', READY: '已发布', FAILED: '失败' }
+      : { QUEUED: 'Queued', PROCESSING: 'Processing', READY: 'Ready', FAILED: 'Failed' };
 
   if (!admin) {
     return (
@@ -54,6 +58,9 @@ export default async function AdminNewsPage({
           <h1 className="text-3xl font-semibold text-display">{t('admin.news')}</h1>
           <p className="text-sm text-muted-foreground">{t('news.adminQueue')}</p>
         </div>
+        <Link href={`/${locale}/admin`} className="text-sm text-primary">
+          {t('admin.back')}
+        </Link>
       </div>
 
       <div className="rounded-2xl border border-border bg-white p-6">
@@ -93,10 +100,10 @@ export default async function AdminNewsPage({
       <form className="flex flex-wrap gap-3" method="get">
         <select name="status" defaultValue={status || ''} className="h-10 rounded-md border px-3 text-sm">
           <option value="">{t('news.status')}</option>
-          <option value="QUEUED">QUEUED</option>
-          <option value="PROCESSING">PROCESSING</option>
-          <option value="READY">READY</option>
-          <option value="FAILED">FAILED</option>
+          <option value="QUEUED">{statusLabels.QUEUED}</option>
+          <option value="PROCESSING">{statusLabels.PROCESSING}</option>
+          <option value="READY">{statusLabels.READY}</option>
+          <option value="FAILED">{statusLabels.FAILED}</option>
         </select>
         <select name="source" defaultValue={source || ''} className="h-10 rounded-md border px-3 text-sm">
           <option value="">{t('news.source')}</option>
@@ -114,8 +121,8 @@ export default async function AdminNewsPage({
         />
         <select name="hidden" defaultValue={hidden || ''} className="h-10 rounded-md border px-3 text-sm">
           <option value="">{t('news.hidden')}</option>
-          <option value="true">Hidden</option>
-          <option value="false">Visible</option>
+          <option value="true">{t('news.hidden')}</option>
+          <option value="false">{t('news.visible')}</option>
         </select>
         <button className="h-10 rounded-md bg-primary px-4 text-sm text-white" type="submit">
           {t('news.filter')}
@@ -132,7 +139,7 @@ export default async function AdminNewsPage({
               <div>
                 <h3 className="text-lg font-semibold">{item.titleOverride || item.title || item.url}</h3>
                 <p className="text-xs text-muted-foreground">
-                  {item.source.name} · {item.status}
+                  {item.source.name} · {statusLabels[item.status]}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -140,7 +147,13 @@ export default async function AdminNewsPage({
                   <input type="hidden" name="id" value={item.id} />
                   <input type="hidden" name="isHidden" value={item.isHidden ? 'false' : 'true'} />
                   <button className="text-sm text-primary" type="submit">
-                    {item.isHidden ? (locale === 'zh' ? '显示' : 'Show') : (locale === 'zh' ? '隐藏' : 'Hide')}
+                    {item.isHidden ? t('news.showAction') : t('news.hideAction')}
+                  </button>
+                </form>
+                <form action="/api/admin/news/delete" method="post">
+                  <input type="hidden" name="id" value={item.id} />
+                  <button className="text-sm text-primary" type="submit">
+                    {t('common.delete')}
                   </button>
                 </form>
                 <Link
