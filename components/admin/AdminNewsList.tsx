@@ -1,7 +1,7 @@
 "use client";
 
-import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 type NewsListItem = {
@@ -24,6 +24,7 @@ export function AdminNewsList({ items, locale }: AdminNewsListProps) {
   const t = useTranslations();
   const [rows, setRows] = useState(items);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const router = useRouter();
 
   const statusLabels =
     locale === 'zh'
@@ -95,10 +96,49 @@ export function AdminNewsList({ items, locale }: AdminNewsListProps) {
     }
   };
 
+  const reprocessItem = async (row: NewsListItem) => {
+    setBusyId(row.id);
+    updateRow(row.id, (item) => ({ ...item, status: 'PROCESSING' }));
+    try {
+      const response = await fetch(`/api/admin/news/reprocess/${row.id}`, { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Request failed');
+      }
+      const data = await response.json();
+      const nextStatus =
+        data?.result?.status === 'ready'
+          ? 'READY'
+          : data?.result?.status === 'failed'
+          ? 'FAILED'
+          : row.status;
+      updateRow(row.id, (item) => ({ ...item, status: nextStatus }));
+    } catch (error) {
+      updateRow(row.id, (item) => ({ ...item, status: row.status }));
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {rows.map((item) => (
-        <div key={item.id} className="rounded-2xl border border-border bg-white p-4">
+        <div
+          key={item.id}
+          className="rounded-2xl border border-border bg-white p-4"
+          role="button"
+          tabIndex={0}
+          onClick={(event) => {
+            const target = event.target as HTMLElement;
+            if (target.closest('button')) return;
+            router.push(`/${locale}/admin/news/${item.id}`);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              router.push(`/${locale}/admin/news/${item.id}`);
+            }
+          }}
+        >
           <div className="flex items-start justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold">{item.titleOverride || item.title || item.url}</h3>
@@ -131,9 +171,14 @@ export function AdminNewsList({ items, locale }: AdminNewsListProps) {
               >
                 {t('common.delete')}
               </button>
-              <Link href={`/${locale}/admin/news/${item.id}`} className="text-sm text-primary">
-                {t('news.adminEdit')}
-              </Link>
+              <button
+                className="text-sm text-primary"
+                type="button"
+                onClick={() => reprocessItem(item)}
+                disabled={busyId === item.id}
+              >
+                {t('news.reprocess')}
+              </button>
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
