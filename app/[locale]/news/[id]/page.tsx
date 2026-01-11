@@ -98,9 +98,9 @@ export default async function NewsDetailPage({
         <p className="text-sm text-muted-foreground">{t('news.disclaimer')}</p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border">
+      <div className="overflow-hidden rounded-2xl border border-border bg-muted">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={image} alt={title} className="h-72 w-full object-cover" />
+        <img src={image} alt={title} className="mx-auto max-h-96 w-full object-contain" />
       </div>
 
       <section className="space-y-3">

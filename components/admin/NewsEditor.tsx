@@ -195,9 +195,13 @@ export function NewsEditor({ locale, item }: NewsEditorProps) {
       <div className="rounded-2xl border border-border bg-white p-6 lg:col-span-2">
         <h2 className="text-lg font-semibold">{locale === 'zh' ? '预览' : 'Preview'}</h2>
         <div className="mt-4 grid gap-6 md:grid-cols-[240px_1fr]">
-          <div className="overflow-hidden rounded-xl border border-border">
+          <div className="overflow-hidden rounded-xl border border-border bg-muted">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview.image} alt="preview" className="h-40 w-full object-cover" />
+            <img
+              src={preview.image}
+              alt="preview"
+              className="mx-auto max-h-56 w-full object-contain"
+            />
           </div>
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">{formState.titleOverride || item.title || item.url}</h3>

@@ -124,9 +124,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section className="container-shell space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-display">{t('home.popularCategories')}</h2>
-          <Link href={`/${locale}/categories`} className="text-sm text-primary hover:underline">
-            {t('nav.categories')}
-          </Link>
+          <div className="flex flex-col items-end gap-1 text-sm">
+            <Link href={`/${locale}/news`} className="text-primary hover:underline">
+              {t('news.title')}
+            </Link>
+            <Link href={`/${locale}/categories`} className="text-primary hover:underline">
+              {t('nav.categories')}
+            </Link>
+          </div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {categories.slice(0, 6).map((category) => (
