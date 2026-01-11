@@ -1,7 +1,45 @@
 import { JSDOM } from 'jsdom';
 import { parseRss } from '@/lib/news/rss';
 
-const MAX_LINKS = 20;
+const MAX_LINKS = 100;
+
+const EXCLUDE_KEYWORDS = [
+  '/webmail',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/taxonomy',
+  '/category',
+  '/tag',
+  '/search',
+  '/login',
+  '/register',
+  '/rss',
+  '/sitemap',
+];
+
+const INCLUDE_PATTERNS = [
+  /\/news\//i,
+  /\/press/i,
+  /\/press-release/i,
+  /\/media/i,
+  /\/release/i,
+  /\/announcement/i,
+  /\/publications?/i,
+  /\/statement/i,
+  /\/speeches?/i,
+  /\/t\d{8}_\d+\.htm/i,
+  /\/\d{4}\/\d{2}\//,
+];
+
+function looksLikeNews(url: string) {
+  const lower = url.toLowerCase();
+  if (EXCLUDE_KEYWORDS.some((keyword) => lower.includes(keyword))) {
+    return false;
+  }
+  return INCLUDE_PATTERNS.some((pattern) => pattern.test(url));
+}
 
 function isSameHost(baseUrl: string, link: string) {
   try {
@@ -44,6 +82,6 @@ export async function discoverSourceLinks(website: string, rssUrl?: string | nul
     .filter((href) => isSameHost(website, href))
     .filter((href) => !href.includes('#'));
 
-  const unique = Array.from(new Set(links));
+  const unique = Array.from(new Set(links)).filter(looksLikeNews);
   return unique.slice(0, MAX_LINKS).map((url) => ({ url, publishedAt: null }));
 }
