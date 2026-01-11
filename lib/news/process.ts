@@ -31,7 +31,19 @@ export async function processNewsItem(id: string) {
     const extracted = extractArticle(html, item.url);
     const excerpt = extracted.excerpt || '';
     if (!excerpt || excerpt.length < 200) {
-      throw new Error('Extracted content too short');
+      await prisma.newsItem.update({
+        where: { id },
+        data: {
+          title: extracted.title ?? item.title,
+          publishedAt: extracted.publishedAt ?? item.publishedAt,
+          fetchedAt: new Date(),
+          ogImageUrl: extracted.ogImageUrl ?? item.ogImageUrl,
+          rawExcerpt: excerpt,
+          status: 'FAILED',
+          error: 'Extracted content too short',
+        },
+      });
+      return { status: 'failed' };
     }
     const contentHash = hashContent(excerpt);
 
@@ -41,18 +53,23 @@ export async function processNewsItem(id: string) {
     let tags = item.tags;
     let riskFlags = item.riskFlags;
 
+    let summarizeError: string | null = null;
     if (shouldSummarize) {
-      const summary = await summarizeArticleZh(
-        excerpt.slice(0, MAX_INPUT_CHARS),
-        extracted.title
-      );
-      summaryZh = JSON.stringify({
-        bullets: summary.summaryBullets,
-        paragraph: summary.summaryParagraph,
-      });
-      whyItMatters = summary.whyItMatters;
-      tags = summary.tags;
-      riskFlags = summary.riskFlags;
+      try {
+        const summary = await summarizeArticleZh(
+          excerpt.slice(0, MAX_INPUT_CHARS),
+          extracted.title
+        );
+        summaryZh = JSON.stringify({
+          bullets: summary.summaryBullets,
+          paragraph: summary.summaryParagraph,
+        });
+        whyItMatters = summary.whyItMatters;
+        tags = summary.tags;
+        riskFlags = summary.riskFlags;
+      } catch (error: any) {
+        summarizeError = error?.message || 'OpenAI summarization failed';
+      }
     }
 
     let imagePath = item.imagePath;
@@ -75,12 +92,12 @@ export async function processNewsItem(id: string) {
         tags,
         riskFlags,
         imagePath,
-        status: 'READY',
-        error: null,
+        status: summarizeError ? 'FAILED' : 'READY',
+        error: summarizeError,
       },
     });
 
-    return { status: 'ready' };
+    return { status: summarizeError ? 'failed' : 'ready' };
   } catch (error: any) {
     await prisma.newsItem.update({
       where: { id },
