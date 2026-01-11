@@ -63,17 +63,19 @@ export async function summarizeArticleZh(text: string, title: string | null) {
   const summaryBullets = Array.isArray(parsed.summaryBullets)
     ? parsed.summaryBullets.filter(Boolean).slice(0, 5)
     : [];
+  const summaryParagraphRaw = parsed.summaryParagraph as unknown;
   const summaryParagraph =
-    typeof parsed.summaryParagraph === 'string'
-      ? parsed.summaryParagraph
-      : Array.isArray(parsed.summaryParagraph)
-      ? parsed.summaryParagraph.filter(Boolean).join('；')
+    typeof summaryParagraphRaw === 'string'
+      ? summaryParagraphRaw
+      : Array.isArray(summaryParagraphRaw)
+      ? summaryParagraphRaw.filter(Boolean).join('；')
       : '未在原文中明确说明';
+  const whyItMattersRaw = parsed.whyItMatters as unknown;
   const whyItMatters =
-    typeof parsed.whyItMatters === 'string'
-      ? parsed.whyItMatters
-      : Array.isArray(parsed.whyItMatters)
-      ? parsed.whyItMatters.filter(Boolean).join('；')
+    typeof whyItMattersRaw === 'string'
+      ? whyItMattersRaw
+      : Array.isArray(whyItMattersRaw)
+      ? whyItMattersRaw.filter(Boolean).join('；')
       : '未在原文中明确说明';
   const tags = Array.isArray(parsed.tags) ? parsed.tags.filter(Boolean).slice(0, 8) : [];
   const riskFlags = Array.isArray(parsed.riskFlags)
