@@ -92,12 +92,12 @@ export async function processNewsItem(id: string) {
         tags,
         riskFlags,
         imagePath,
-        status: summarizeError ? 'FAILED' : 'READY',
+        status: 'READY',
         error: summarizeError,
       },
     });
 
-    return { status: summarizeError ? 'failed' : 'ready' };
+    return { status: summarizeError ? 'ready_with_warning' : 'ready' };
   } catch (error: any) {
     await prisma.newsItem.update({
       where: { id },

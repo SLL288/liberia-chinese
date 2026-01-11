@@ -129,6 +129,8 @@ const zh = {
     visible: '显示',
     hideAction: '隐藏',
     showAction: '显示',
+    publishAction: '发布',
+    unpublishAction: '下架',
     save: '保存修改',
     reprocess: '重新摘要',
     useAi: '使用 AI 版本',

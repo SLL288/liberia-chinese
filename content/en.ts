@@ -129,6 +129,8 @@ const en = {
     visible: 'Visible',
     hideAction: 'Hide',
     showAction: 'Show',
+    publishAction: 'Publish',
+    unpublishAction: 'Unpublish',
     save: 'Save changes',
     reprocess: 'Reprocess',
     useAi: 'Use AI version',

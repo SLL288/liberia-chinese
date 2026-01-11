@@ -8,6 +8,7 @@ export const runtime = 'nodejs';
 const schema = z.object({
   id: z.string().min(1),
   isHidden: z.enum(['true', 'false']),
+  status: z.enum(['READY', 'FAILED']).optional(),
 });
 
 export async function POST(request: Request) {
@@ -20,19 +21,21 @@ export async function POST(request: Request) {
   const payload = schema.safeParse({
     id: formData.get('id'),
     isHidden: formData.get('isHidden'),
+    status: formData.get('status') || undefined,
   });
 
   if (!payload.success) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
   }
 
-  const { id, isHidden } = payload.data;
+  const { id, isHidden, status } = payload.data;
   const hidden = isHidden === 'true';
 
   await prisma.newsItem.update({
     where: { id },
     data: {
       isHidden: hidden,
+      ...(status ? { status } : {}),
       editedByUserId: admin.id,
       editedAt: new Date(),
     },

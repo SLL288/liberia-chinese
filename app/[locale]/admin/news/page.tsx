@@ -20,6 +20,7 @@ export default async function AdminNewsPage({
     locale === 'zh'
       ? { QUEUED: '排队', PROCESSING: '处理中', READY: '已发布', FAILED: '失败' }
       : { QUEUED: 'Queued', PROCESSING: 'Processing', READY: 'Ready', FAILED: 'Failed' };
+  const isPublished = (value: string) => value === 'READY';
 
   if (!admin) {
     return (
@@ -148,6 +149,18 @@ export default async function AdminNewsPage({
                   <input type="hidden" name="isHidden" value={item.isHidden ? 'false' : 'true'} />
                   <button className="text-sm text-primary" type="submit">
                     {item.isHidden ? t('news.showAction') : t('news.hideAction')}
+                  </button>
+                </form>
+                <form action="/api/admin/news/visibility" method="post">
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="hidden" name="isHidden" value="false" />
+                  <input
+                    type="hidden"
+                    name="status"
+                    value={isPublished(item.status) ? 'FAILED' : 'READY'}
+                  />
+                  <button className="text-sm text-primary" type="submit">
+                    {isPublished(item.status) ? t('news.unpublishAction') : t('news.publishAction')}
                   </button>
                 </form>
                 <form action="/api/admin/news/delete" method="post">
