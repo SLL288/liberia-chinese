@@ -5,6 +5,7 @@ import { summarizeArticleZh } from '@/lib/news/openai';
 import { uploadNewsImage } from '@/lib/news/storage';
 
 const MAX_INPUT_CHARS = 12000;
+const MIN_EXCERPT_CHARS = 120;
 
 export async function processNewsItem(id: string) {
   const item = await prisma.newsItem.findUnique({
@@ -30,7 +31,7 @@ export async function processNewsItem(id: string) {
     const html = await response.text();
     const extracted = extractArticle(html, item.url);
     const excerpt = extracted.excerpt || '';
-    if (!excerpt || excerpt.length < 200) {
+    if (!excerpt || excerpt.length < MIN_EXCERPT_CHARS) {
       await prisma.newsItem.update({
         where: { id },
         data: {
@@ -39,11 +40,11 @@ export async function processNewsItem(id: string) {
           fetchedAt: new Date(),
           ogImageUrl: extracted.ogImageUrl ?? item.ogImageUrl,
           rawExcerpt: excerpt,
-          status: 'FAILED',
+          status: 'READY',
           error: 'Extracted content too short',
         },
       });
-      return { status: 'failed' };
+      return { status: 'ready_with_warning' };
     }
     const contentHash = hashContent(excerpt);
 
