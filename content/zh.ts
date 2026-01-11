@@ -116,7 +116,7 @@ const zh = {
     empty: '暂无资讯',
     readMore: '查看原文',
     disclaimer: 'AI 摘要，仅供参考；请以原文为准。',
-    whyItMatters: '与利比里亚华人社区的关联',
+    whyItMatters: '本站评论',
     adminIngest: '录入链接',
     adminSync: '同步资讯',
     adminSyncHint: '从已配置来源抓取并处理最新 2 条资讯。',
