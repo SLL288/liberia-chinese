@@ -81,9 +81,9 @@ export default async function NewsListPage({
                 href={`/${locale}/news/${item.id}`}
                 className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-5 shadow-sm transition hover:border-primary/40"
               >
-                <div className="overflow-hidden rounded-xl border border-border">
+                <div className="aspect-video overflow-hidden rounded-xl border border-border">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image} alt={item.title || ''} className="h-40 w-full object-cover" />
+                  <img src={image} alt={item.title || ''} className="h-full w-full object-cover" />
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-lg font-semibold text-display">

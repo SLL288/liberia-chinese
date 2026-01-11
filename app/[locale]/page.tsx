@@ -173,9 +173,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   href={`/${locale}/news/${item.id}`}
                   className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-6 shadow-sm transition hover:border-primary/40"
                 >
-                  <div className="overflow-hidden rounded-2xl border border-border">
+                  <div className="overflow-hidden rounded-2xl border border-border bg-muted">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={image} alt={item.title || ''} className="h-56 w-full object-cover" />
+                    <img
+                      src={image}
+                      alt={item.title || ''}
+                      className="mx-auto max-h-72 w-full object-contain"
+                    />
                   </div>
                   <div className="space-y-3">
                     <div className="text-xs text-muted-foreground">
