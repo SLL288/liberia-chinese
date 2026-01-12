@@ -1,7 +1,7 @@
 const zh = {
   tagline: '找工作、找房、找服务，一站搞定',
   nav: {
-    categories: '分类',
+    categories: '全部分类',
     search: '搜索',
     publish: '发布信息',
     dashboard: '我的发布',

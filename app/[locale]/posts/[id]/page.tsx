@@ -56,13 +56,13 @@ export async function generateMetadata({
       siteName: locale === 'zh' ? '利比里亚华人' : 'Liberia Chinese',
       locale: locale === 'zh' ? 'zh_CN' : 'en_US',
       type: 'article',
-      images: [{ url: ogImage, width: 1200, height: 630 }, { url: image }],
+      images: [{ url: image, width: 1200, height: 630 }, { url: ogImage }],
     },
     twitter: {
       card: 'summary_large_image',
       title: truncateForShare(title, locale),
       description,
-      images: [ogImage],
+      images: [image],
     },
   };
 }
