@@ -29,6 +29,10 @@ const en = {
     views: 'Views',
     publishedAt: 'Published',
     contact: 'Contact',
+    view: 'View',
+    viewLarge: 'Large',
+    viewSmall: 'Small',
+    viewList: 'List',
   },
   home: {
     heroTitle: 'Liberia Chinese Classifieds & Community',

@@ -29,6 +29,10 @@ const zh = {
     views: '浏览量',
     publishedAt: '发布时间',
     contact: '联系方式',
+    view: '显示方式',
+    viewLarge: '大图',
+    viewSmall: '小图',
+    viewList: '列表',
   },
   home: {
     heroTitle: '利比里亚华人分类信息平台',

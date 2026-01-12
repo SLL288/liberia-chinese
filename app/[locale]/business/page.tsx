@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
-import { PostCard } from '@/components/PostCard';
+import { PostListClient } from '@/components/posts/PostListClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,11 +36,7 @@ export default async function BusinessDirectoryPage({
       {posts.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('common.empty')}</p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-3">
-          {posts.map((post) => (
-            <PostCard key={post.id} locale={locale} post={post} />
-          ))}
-        </div>
+        <PostListClient posts={posts} locale={locale} />
       )}
     </div>
   );

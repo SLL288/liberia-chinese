@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { PostCard } from '@/components/PostCard';
+import { PostListClient } from '@/components/posts/PostListClient';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -40,11 +40,7 @@ export default async function CategoryPage({
       {posts.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('common.empty')}</p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-3">
-          {posts.map((post) => (
-            <PostCard key={post.id} locale={locale} post={post} />
-          ))}
-        </div>
+        <PostListClient posts={posts} locale={locale} />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { searchPosts, getCategories } from '@/lib/data';
-import { PostCard } from '@/components/PostCard';
+import { PostListClient } from '@/components/posts/PostListClient';
 import { Select } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -71,11 +71,7 @@ export default async function SearchPage({
       {posts.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('common.empty')}</p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-3">
-          {posts.map((post) => (
-            <PostCard key={post.id} locale={locale} post={post} />
-          ))}
-        </div>
+        <PostListClient posts={posts} locale={locale} />
       )}
     </div>
   );
