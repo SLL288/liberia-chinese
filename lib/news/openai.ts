@@ -29,22 +29,82 @@ export async function summarizeArticleZh(text: string, title: string | null) {
 
   const input = `标题：${title || '未在原文中明确说明'}\n\n正文：${text}`;
 
+  const requestBody = {
+    model: 'llama-3.1-8b-instant',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: input },
+    ],
+    response_format: { type: 'json_object' },
+    temperature: 0.2,
+  };
+
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: 'llama-3.1-8b-instant',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: input },
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.2,
-    }),
+    body: JSON.stringify(requestBody),
   });
+
+  if (response.status === 429) {
+    await new Promise((resolve) => setTimeout(resolve, 14000));
+    const retry = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(requestBody),
+    });
+    if (!retry.ok) {
+      const retryText = await retry.text();
+      throw new Error(`Groq error: ${retry.status} ${retryText}`);
+    }
+    const retryData = await retry.json();
+    const retryTextOutput = retryData?.choices?.[0]?.message?.content ?? '{}';
+    let retryParsed: SummaryResult;
+    try {
+      retryParsed = JSON.parse(retryTextOutput);
+    } catch (error) {
+      throw new Error('Groq JSON parse failed');
+    }
+
+    const summaryBullets = Array.isArray(retryParsed.summaryBullets)
+      ? retryParsed.summaryBullets.filter(Boolean).slice(0, 5)
+      : [];
+    const summaryParagraphRaw = retryParsed.summaryParagraph as unknown;
+    const summaryParagraph =
+      typeof summaryParagraphRaw === 'string'
+        ? summaryParagraphRaw
+        : Array.isArray(summaryParagraphRaw)
+        ? summaryParagraphRaw.filter(Boolean).join('；')
+        : '未在原文中明确说明';
+    const whyItMattersRaw = retryParsed.whyItMatters as unknown;
+    const whyItMatters =
+      typeof whyItMattersRaw === 'string'
+        ? whyItMattersRaw
+        : Array.isArray(whyItMattersRaw)
+        ? whyItMattersRaw.filter(Boolean).join('；')
+        : '未在原文中明确说明';
+    const tags = Array.isArray(retryParsed.tags) ? retryParsed.tags.filter(Boolean).slice(0, 8) : [];
+    const riskFlags = Array.isArray(retryParsed.riskFlags)
+      ? retryParsed.riskFlags
+          .filter((flag): flag is (typeof RISK_FLAGS)[number] =>
+            RISK_FLAGS.includes(flag as (typeof RISK_FLAGS)[number])
+          )
+          .slice(0, 3)
+      : [];
+
+    return {
+      summaryBullets,
+      summaryParagraph,
+      whyItMatters,
+      tags,
+      riskFlags,
+    };
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
