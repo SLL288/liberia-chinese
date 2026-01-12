@@ -136,6 +136,7 @@ const zh = {
     publishAction: '发布',
     unpublishAction: '下架',
     deleteAll: '删除全部资讯',
+    error: '错误',
     save: '保存修改',
     reprocess: '重新摘要',
     useAi: '使用 AI 版本',

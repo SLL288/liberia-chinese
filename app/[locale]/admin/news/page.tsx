@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { prisma } from '@/lib/prisma';
+import { getNewsSources } from '@/lib/news/queries';
 import { requireAdmin } from '@/lib/auth';
 import { AdminNewsList } from '@/components/admin/AdminNewsList';
 
@@ -31,10 +32,7 @@ export default async function AdminNewsPage({
     );
   }
 
-  const sources = await prisma.newsSource.findMany({
-    where: { isActive: true },
-    orderBy: { name: 'asc' },
-  });
+  const sources = await getNewsSources();
 
   const where: any = {};
   if (status) where.status = status;

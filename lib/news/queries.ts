@@ -48,5 +48,6 @@ export async function getNewsSources() {
   return prisma.newsSource.findMany({
     where: { isActive: true },
     orderBy: { name: 'asc' },
+    distinct: ['name', 'website'],
   });
 }

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { parseSummary } from '@/lib/news/format';
+import { getPublicImageUrl } from '@/lib/news/storage';
 
 type NewsListItem = {
   id: string;
@@ -11,6 +13,15 @@ type NewsListItem = {
   isFeatured: boolean;
   title: string | null;
   titleOverride: string | null;
+  titleZh?: string | null;
+  titleEn?: string | null;
+  summaryZh: string | null;
+  summaryOverrideZh: string | null;
+  rawExcerpt: string | null;
+  imagePath: string | null;
+  imageOverrideUrl: string | null;
+  ogImageUrl: string | null;
+  error: string | null;
   url: string;
   source: { name: string };
 };
@@ -141,7 +152,11 @@ export function AdminNewsList({ items, locale }: AdminNewsListProps) {
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold">{item.titleOverride || item.title || item.url}</h3>
+              <h3 className="text-lg font-semibold">
+                {item.titleOverride ||
+                  (locale === 'zh' ? item.titleZh || item.title : item.titleEn || item.title) ||
+                  item.url}
+              </h3>
               <p className="text-xs text-muted-foreground">
                 {item.source.name} · {statusLabels[item.status]}
               </p>
@@ -184,6 +199,37 @@ export function AdminNewsList({ items, locale }: AdminNewsListProps) {
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
             {item.isFeatured ? <span>{t('news.featured')}</span> : null}
             {item.isHidden ? <span>{t('news.hidden')}</span> : null}
+          </div>
+          <div className="mt-4 flex flex-col gap-3 md:flex-row">
+            <div className="h-24 w-full overflow-hidden rounded-xl border border-border bg-muted md:w-40">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={
+                  item.imageOverrideUrl ||
+                  getPublicImageUrl(item.imagePath) ||
+                  item.ogImageUrl ||
+                  '/images/banners/home-top.svg'
+                }
+                alt={item.title || ''}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="flex-1 space-y-2 text-sm text-muted-foreground">
+              {(() => {
+                const summary = parseSummary(item.summaryOverrideZh || item.summaryZh || '');
+                const paragraph = summary.paragraph || item.rawExcerpt || '';
+                return paragraph ? (
+                  <p className="line-clamp-3">{paragraph}</p>
+                ) : (
+                  <p className="line-clamp-3">{t('news.empty')}</p>
+                );
+              })()}
+              {item.error ? (
+                <p className="text-xs text-destructive line-clamp-2">
+                  {t('news.error')}: {item.error}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
       ))}
