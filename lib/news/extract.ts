@@ -69,18 +69,23 @@ export function extractArticle(html: string, url: string): ExtractedArticle {
   const publishedDate =
     publishedAt && !Number.isNaN(publishedAt.getTime()) ? publishedAt : null;
 
-  const ogImage = resolveUrl(url, getMetaContent(document, imageSelectors));
-  const firstImage = resolveUrl(url, document.querySelector('img')?.getAttribute('src') || null);
-
   const reader = new Readability(document);
   const result = reader.parse();
+  const contentHtml = result?.content || '';
+  const contentDom = contentHtml ? new JSDOM(contentHtml, { url }).window.document : null;
+  const contentImage = resolveUrl(
+    url,
+    contentDom?.querySelector('img')?.getAttribute('src') || null
+  );
+  const ogImage = resolveUrl(url, getMetaContent(document, imageSelectors));
+  const firstImage = resolveUrl(url, document.querySelector('img')?.getAttribute('src') || null);
   const rawText = result?.textContent || document.body?.textContent || '';
   const excerpt = normalizeText(rawText).slice(0, MAX_EXCERPT_CHARS);
 
   return {
     title,
     publishedAt: publishedDate,
-    ogImageUrl: ogImage || firstImage,
+    ogImageUrl: contentImage || ogImage || firstImage,
     excerpt,
   };
 }
