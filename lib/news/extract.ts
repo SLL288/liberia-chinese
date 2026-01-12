@@ -47,6 +47,43 @@ function resolveUrl(base: string, url: string | null) {
   }
 }
 
+function parseIntAttr(value: string | null) {
+  if (!value) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function pickBestImage(root: Document | Element | null, baseUrl: string) {
+  if (!root) return null;
+  const images = Array.from(root.querySelectorAll('img'));
+  let best: { url: string; score: number } | null = null;
+  for (const img of images) {
+    const src = img.getAttribute('src');
+    if (!src || src.startsWith('data:')) continue;
+    const resolved = resolveUrl(baseUrl, src);
+    if (!resolved) continue;
+
+    const width = parseIntAttr(img.getAttribute('width'));
+    const height = parseIntAttr(img.getAttribute('height'));
+    const area = width && height ? width * height : 0;
+    const lower = resolved.toLowerCase();
+    const penalty =
+      lower.includes('logo') ||
+      lower.includes('banner') ||
+      lower.includes('header') ||
+      lower.includes('icon')
+        ? 0.2
+        : 1;
+    const score = (area || 1) * penalty;
+
+    if (!best || score > best.score) {
+      best = { url: resolved, score };
+    }
+  }
+
+  return best?.url ?? null;
+}
+
 export type ExtractedArticle = {
   title: string | null;
   publishedAt: Date | null;
@@ -73,12 +110,13 @@ export function extractArticle(html: string, url: string): ExtractedArticle {
   const result = reader.parse();
   const contentHtml = result?.content || '';
   const contentDom = contentHtml ? new JSDOM(contentHtml, { url }).window.document : null;
-  const contentImage = resolveUrl(
-    url,
-    contentDom?.querySelector('img')?.getAttribute('src') || null
-  );
+  const contentRoot =
+    document.querySelector('.TRS_Editor, #TRS_Editor, .article, .content, .article-content, .content-detail') ||
+    contentDom?.body ||
+    document.body;
+  const contentImage = pickBestImage(contentRoot, url);
   const ogImage = resolveUrl(url, getMetaContent(document, imageSelectors));
-  const firstImage = resolveUrl(url, document.querySelector('img')?.getAttribute('src') || null);
+  const firstImage = pickBestImage(document, url);
   const rawText = result?.textContent || document.body?.textContent || '';
   const excerpt = normalizeText(rawText).slice(0, MAX_EXCERPT_CHARS);
 
