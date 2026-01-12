@@ -34,7 +34,7 @@ const viewOptions: ViewMode[] = ["large", "small", "list"];
 export function PostListClient({ posts, locale }: PostListClientProps) {
   const t = useTranslations();
   const storageKey = `view:posts`;
-  const [view, setView] = useState<ViewMode>("large");
+  const [view, setView] = useState<ViewMode>("list");
 
   useEffect(() => {
     const stored = typeof window !== "undefined" ? window.localStorage.getItem(storageKey) : null;
