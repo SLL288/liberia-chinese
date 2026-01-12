@@ -23,7 +23,9 @@ export async function generateMetadata({
     return {};
   }
 
-  const title = item.titleOverride || item.title || item.url;
+  const title = item.titleOverride ||
+    (locale === 'zh' ? item.titleZh || item.title : item.titleEn || item.title) ||
+    item.url;
   const summary = parseSummary(item.summaryOverrideZh || item.summaryZh || '');
   const bullets = summary.bullets.slice(0, 2).join('；');
   const description = clampDescription(
@@ -77,7 +79,9 @@ export default async function NewsDetailPage({
   }
 
   const summary = parseSummary(item.summaryOverrideZh || item.summaryZh || '');
-  const title = item.titleOverride || item.title || item.url;
+  const title = item.titleOverride ||
+    (locale === 'zh' ? item.titleZh || item.title : item.titleEn || item.title) ||
+    item.url;
   const whyItMatters = item.whyItMattersOverride || item.whyItMatters;
   const image =
     item.imageOverrideUrl ||

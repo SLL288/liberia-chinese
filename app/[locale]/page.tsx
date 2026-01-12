@@ -172,6 +172,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 item.ogImageUrl ||
                 '/images/banners/home-top.svg';
               const dateValue = item.publishedAtOverride || item.publishedAt || item.createdAt;
+              const title =
+                item.titleOverride ||
+                (locale === 'zh' ? item.titleZh || item.title : item.titleEn || item.title) ||
+                item.url;
               return (
                 <Link
                   key={item.id}
@@ -191,7 +195,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                       {item.source.name} · {dateValue.toISOString().slice(0, 10)}
                     </div>
                     <h3 className="text-lg font-semibold text-display">
-                      {item.titleOverride || item.title || item.url}
+                      {title}
                     </h3>
                     <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
                       {summary.bullets.slice(0, 3).map((bullet, index) => (
@@ -205,6 +209,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="space-y-3">
               {newsItems.slice(1, 6).map((item) => {
                 const dateValue = item.publishedAtOverride || item.publishedAt || item.createdAt;
+                const title =
+                  item.titleOverride ||
+                  (locale === 'zh' ? item.titleZh || item.title : item.titleEn || item.title) ||
+                  item.url;
                 return (
                   <Link
                     key={item.id}
@@ -215,7 +223,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                       {item.source.name} · {dateValue.toISOString().slice(0, 10)}
                     </div>
                     <div className="mt-2 text-base font-semibold text-display">
-                      {item.titleOverride || item.title || item.url}
+                      {title}
                     </div>
                   </Link>
                 );

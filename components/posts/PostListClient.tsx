@@ -9,6 +9,8 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 type PostItem = {
   id: string;
   title: string;
+  titleZh?: string | null;
+  titleEn?: string | null;
   price: any;
   currency: string;
   city: string | null;
@@ -102,6 +104,10 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
           const image = post.images?.[0]?.url ?? "/images/sample/house-1.svg";
           const priceLabel = formatPrice(post);
           const location = `${post.city ?? "—"}${post.region ? ` · ${post.region}` : ""}`;
+          const title =
+            locale === "zh"
+              ? post.titleZh || post.title
+              : post.titleEn || post.title;
 
           if (view === "list") {
             return (
@@ -122,7 +128,7 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
                     )}
                     {post.isUrgent && <Badge variant="urgent">{locale === "zh" ? "加急" : "Urgent"}</Badge>}
                   </div>
-                  <h3 className="text-base font-semibold text-display">{post.title}</h3>
+                  <h3 className="text-base font-semibold text-display">{title}</h3>
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                     <span>{priceLabel}</span>
                     <span>{formatCreated(post.createdAt)}</span>
@@ -152,7 +158,7 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
                   )}
                   {post.isUrgent && <Badge variant="urgent">{locale === "zh" ? "加急" : "Urgent"}</Badge>}
                 </div>
-                <h3 className="line-clamp-2 text-base font-semibold text-display">{post.title}</h3>
+                <h3 className="line-clamp-2 text-base font-semibold text-display">{title}</h3>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>{priceLabel}</span>
                   <span>{formatCreated(post.createdAt)}</span>

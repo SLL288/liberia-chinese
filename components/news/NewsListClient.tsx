@@ -11,6 +11,8 @@ type NewsItem = {
   url: string;
   title: string | null;
   titleOverride: string | null;
+  titleZh?: string | null;
+  titleEn?: string | null;
   summaryZh: string | null;
   summaryOverrideZh: string | null;
   imagePath: string | null;
@@ -100,7 +102,10 @@ export function NewsListClient({ items, locale }: NewsListClientProps) {
             item.ogImageUrl ||
             "/images/banners/home-top.svg";
           const dateValue = item.publishedAtOverride || item.publishedAt || item.createdAt;
-          const title = item.titleOverride || item.title || item.url;
+          const title =
+            item.titleOverride ||
+            (locale === "zh" ? item.titleZh || item.title : item.titleEn || item.title) ||
+            item.url;
 
           if (view === "list") {
             return (

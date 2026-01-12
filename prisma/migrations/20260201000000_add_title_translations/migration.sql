@@ -1,0 +1,5 @@
+ALTER TABLE "Post" ADD COLUMN "titleZh" TEXT;
+ALTER TABLE "Post" ADD COLUMN "titleEn" TEXT;
+
+ALTER TABLE "NewsItem" ADD COLUMN "titleZh" TEXT;
+ALTER TABLE "NewsItem" ADD COLUMN "titleEn" TEXT;

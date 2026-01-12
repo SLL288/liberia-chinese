@@ -8,6 +8,8 @@ type PostCardProps = {
   post: {
     id: string;
     title: string;
+    titleZh?: string | null;
+    titleEn?: string | null;
     price: any;
     currency: string;
     city: string | null;
@@ -24,6 +26,10 @@ type PostCardProps = {
 
 export function PostCard({ locale, post }: PostCardProps) {
   const image = post.images?.[0]?.url ?? '/images/sample/house-1.svg';
+  const title =
+    locale === 'zh'
+      ? post.titleZh || post.title
+      : post.titleEn || post.title;
   const priceLabel =
     typeof post.price === 'number'
       ? formatCurrency(post.price, post.currency, locale === 'zh' ? 'zh-CN' : 'en-US')
@@ -46,7 +52,7 @@ export function PostCard({ locale, post }: PostCardProps) {
             {post.isFeatured && <Badge variant="featured">{locale === 'zh' ? '推荐' : 'Featured'}</Badge>}
             {post.isUrgent && <Badge variant="urgent">{locale === 'zh' ? '加急' : 'Urgent'}</Badge>}
           </div>
-          <CardTitle className="line-clamp-2 text-base">{post.title}</CardTitle>
+          <CardTitle className="line-clamp-2 text-base">{title}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <div className="flex items-center justify-between">

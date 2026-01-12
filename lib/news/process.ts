@@ -3,6 +3,7 @@ import { extractArticle } from '@/lib/news/extract';
 import { hashContent } from '@/lib/news/hash';
 import { summarizeArticleZh } from '@/lib/news/openai';
 import { uploadNewsImage } from '@/lib/news/storage';
+import { isChinese, translateText } from '@/lib/translate';
 
 const MAX_INPUT_CHARS = 12000;
 const MIN_EXCERPT_CHARS = 120;
@@ -31,11 +32,37 @@ export async function processNewsItem(id: string) {
     const html = await response.text();
     const extracted = extractArticle(html, item.url);
     const excerpt = extracted.excerpt || '';
+    const resolvedTitle = extracted.title ?? item.title;
+    let titleZh = item.titleZh;
+    let titleEn = item.titleEn;
+    if (resolvedTitle) {
+      if (isChinese(resolvedTitle)) {
+        titleZh = resolvedTitle;
+        if (!titleEn || item.title !== resolvedTitle) {
+          try {
+            titleEn = await translateText(resolvedTitle, 'en');
+          } catch (error) {
+            // Keep existing translation on failure.
+          }
+        }
+      } else {
+        titleEn = resolvedTitle;
+        if (!titleZh || item.title !== resolvedTitle) {
+          try {
+            titleZh = await translateText(resolvedTitle, 'zh');
+          } catch (error) {
+            // Keep existing translation on failure.
+          }
+        }
+      }
+    }
     if (!excerpt || excerpt.length < MIN_EXCERPT_CHARS) {
       await prisma.newsItem.update({
         where: { id },
         data: {
           title: extracted.title ?? item.title,
+          titleZh,
+          titleEn,
           publishedAt: extracted.publishedAt ?? item.publishedAt,
           fetchedAt: new Date(),
           ogImageUrl: extracted.ogImageUrl ?? item.ogImageUrl,
@@ -83,6 +110,8 @@ export async function processNewsItem(id: string) {
       where: { id },
       data: {
         title: extracted.title ?? item.title,
+        titleZh,
+        titleEn,
         publishedAt: extracted.publishedAt ?? item.publishedAt,
         fetchedAt: new Date(),
         ogImageUrl: extracted.ogImageUrl ?? item.ogImageUrl,

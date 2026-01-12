@@ -25,7 +25,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const title = post.title;
+  const title = locale === 'zh' ? post.titleZh || post.title : post.titleEn || post.title;
   const rawImage = post.images[0]?.url || null;
   const image = rawImage && !isDataUrl(rawImage)
     ? await absoluteUrl(rawImage)

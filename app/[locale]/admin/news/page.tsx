@@ -57,9 +57,16 @@ export default async function AdminNewsPage({
           <h1 className="text-3xl font-semibold text-display">{t('admin.news')}</h1>
           <p className="text-sm text-muted-foreground">{t('news.adminQueue')}</p>
         </div>
-        <a href={`/${locale}/admin`} className="text-sm text-primary">
-          {t('admin.back')}
-        </a>
+        <div className="flex items-center gap-3 text-sm">
+          <form action="/api/admin/news/delete-all" method="post">
+            <button className="text-destructive hover:underline" type="submit">
+              {t('news.deleteAll')}
+            </button>
+          </form>
+          <a href={`/${locale}/admin`} className="text-primary hover:underline">
+            {t('admin.back')}
+          </a>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-white p-6">

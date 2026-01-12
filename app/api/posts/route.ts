@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { isChinese, translateText } from '@/lib/translate';
 
 export const runtime = 'nodejs';
 
@@ -41,11 +42,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 
+    let titleZh: string | null = null;
+    let titleEn: string | null = null;
+    if (isChinese(data.title)) {
+      titleZh = data.title;
+      try {
+        titleEn = await translateText(data.title, 'en');
+      } catch (error) {
+        // Skip translation if it fails.
+      }
+    } else {
+      titleEn = data.title;
+      try {
+        titleZh = await translateText(data.title, 'zh');
+      } catch (error) {
+        // Skip translation if it fails.
+      }
+    }
+
     const post = await prisma.post.create({
       data: {
         userId: user.id,
         categoryId: data.categoryId,
         title: data.title,
+        titleZh,
+        titleEn,
         description: data.description,
         price: data.price ?? null,
         currency: data.currency,

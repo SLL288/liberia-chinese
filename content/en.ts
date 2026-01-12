@@ -135,6 +135,7 @@ const en = {
     showAction: 'Show',
     publishAction: 'Publish',
     unpublishAction: 'Unpublish',
+    deleteAll: 'Delete all news',
     save: 'Save changes',
     reprocess: 'Reprocess',
     useAi: 'Use AI version',
