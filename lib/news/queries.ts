@@ -33,7 +33,11 @@ export async function getNewsList(filters: NewsFilters) {
   return prisma.newsItem.findMany({
     where,
     include: { source: true },
-    orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+    orderBy: [
+      { publishedAtOverride: 'desc' },
+      { publishedAt: 'desc' },
+      { createdAt: 'desc' },
+    ],
   });
 }
 
