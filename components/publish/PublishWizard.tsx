@@ -126,6 +126,16 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
     setImages((prev) => prev.filter((image) => image.id !== id));
   };
 
+  const moveImage = (fromIndex: number, toIndex: number) => {
+    setImages((prev) => {
+      if (fromIndex === toIndex) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -213,8 +223,27 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
             </label>
             {images.length > 0 ? (
               <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                {images.map((image) => (
-                  <div key={image.id} className="relative overflow-hidden rounded-xl border border-border">
+                {images.map((image, index) => (
+                  <div
+                    key={image.id}
+                    className="relative overflow-hidden rounded-xl border border-border"
+                    draggable
+                    onDragStart={(event) => {
+                      event.dataTransfer.setData('text/plain', String(index));
+                      event.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = 'move';
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const fromIndex = Number(event.dataTransfer.getData('text/plain'));
+                      if (!Number.isNaN(fromIndex)) {
+                        moveImage(fromIndex, index);
+                      }
+                    }}
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={image.url} alt={image.name} className="h-32 w-full object-cover" />
                     <button

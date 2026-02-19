@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { getPostById } from '@/lib/data';
 import { ShareDialog } from '@/components/ShareDialog';
+import { PostImageGallery } from '@/components/posts/PostImageGallery';
 import { absoluteUrl, getSiteUrl } from '@/lib/metadata';
 import { clampDescription, truncateForShare, isDataUrl } from '@/lib/share';
 
@@ -105,20 +106,7 @@ export default async function PostDetailPage({
             <span>{t('common.city')}: {post.city ?? '—'}</span>
             <span>{t('common.region')}: {post.region ?? '—'}</span>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {post.images.length === 0 ? (
-              <div className="flex h-64 items-center justify-center rounded-2xl border border-dashed border-border">
-                No images
-              </div>
-            ) : (
-              post.images.map((image) => (
-                <div key={image.id} className="overflow-hidden rounded-2xl border border-border">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image.url} alt={post.title} className="h-64 w-full object-cover" />
-                </div>
-              ))
-            )}
-          </div>
+          <PostImageGallery images={post.images} title={post.title} />
           <Card>
             <CardContent className="space-y-4 p-6">
               <h2 className="text-lg font-semibold">{t('common.contact')}</h2>
