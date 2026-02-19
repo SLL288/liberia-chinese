@@ -49,7 +49,7 @@ export function ShareDialog({ url, title, locale }: ShareDialogProps) {
           <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
             {title}
           </div>
-          <div className="rounded-xl border border-border bg-white p-4">
+          <div className="flex justify-center rounded-xl border border-border bg-white p-4">
             <QRCodeCanvas value={url} size={180} includeMargin />
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
