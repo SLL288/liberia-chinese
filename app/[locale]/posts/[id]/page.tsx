@@ -126,7 +126,15 @@ export default async function PostDetailPage({
           <PostImageGallery images={post.images} title={title} />
           <section className="space-y-2">
             <h2 className="text-lg font-semibold">{t('common.details')}</h2>
-            <p className="text-sm text-muted-foreground">{post.description}</p>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              {post.description
+                .split(/\n+/)
+                .map((line) => line.trim())
+                .filter(Boolean)
+                .map((line, index) => (
+                  <p key={`${post.id}-desc-${index}`}>{line}</p>
+                ))}
+            </div>
           </section>
           <Card>
             <CardContent className="space-y-4 p-6">

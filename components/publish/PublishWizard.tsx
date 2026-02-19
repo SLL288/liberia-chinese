@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 type PublishWizardProps = {
   locale: string;
-  categories: { id: string; nameZh: string; nameEn: string }[];
+  categories: { id: string; nameZh: string; nameEn: string; slug: string }[];
 };
 
 const steps = ['details', 'contact', 'review'] as const;
@@ -48,11 +48,30 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
   const handleSubmit = async () => {
     if (submitting) return;
     setSubmitError(null);
+    const category = categories.find((item) => item.id === formState.categoryId);
+    const requiresPhone = category?.slug === 'business';
+    const hasContact = Boolean(formState.wechat || formState.whatsapp || formState.phone);
     if (!formState.title.trim() || formState.description.trim().length < 10 || !formState.categoryId) {
       setSubmitError(
         locale === 'zh'
           ? '请填写标题、分类和至少 10 个字的描述。'
           : 'Please provide a title, category, and a longer description.'
+      );
+      return;
+    }
+    if (!hasContact) {
+      setSubmitError(
+        locale === 'zh'
+          ? '请至少填写一种联系方式（微信/WhatsApp/电话）。'
+          : 'Please provide at least one contact method (WeChat/WhatsApp/Phone).'
+      );
+      return;
+    }
+    if (requiresPhone && !formState.phone) {
+      setSubmitError(
+        locale === 'zh'
+          ? '商家名录帖子需要填写联系电话。'
+          : 'Business listings require a phone number.'
       );
       return;
     }
