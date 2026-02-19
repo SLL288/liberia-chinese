@@ -11,6 +11,7 @@ type PostItem = {
   title: string;
   titleZh?: string | null;
   titleEn?: string | null;
+  description?: string | null;
   price: any;
   currency: string;
   city: string | null;
@@ -29,11 +30,12 @@ type ViewMode = "large" | "small" | "list";
 type PostListClientProps = {
   posts: PostItem[];
   locale: string;
+  imageFit?: 'cover' | 'contain';
 };
 
 const viewOptions: ViewMode[] = ["large", "small", "list"];
 
-export function PostListClient({ posts, locale }: PostListClientProps) {
+export function PostListClient({ posts, locale, imageFit = 'cover' }: PostListClientProps) {
   const t = useTranslations();
   const storageKey = `view:posts`;
   const [view, setView] = useState<ViewMode>("list");
@@ -108,6 +110,7 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
             locale === "zh"
               ? post.titleZh || post.title
               : post.titleEn || post.title;
+          const description = post.description ?? "";
 
           if (view === "list") {
             return (
@@ -118,7 +121,11 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
               >
                 <div className="h-24 w-32 overflow-hidden rounded-lg border border-border bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={image} alt={post.title} className="h-full w-full object-cover" />
+                  <img
+                    src={image}
+                    alt={post.title}
+                    className={`h-full w-full ${imageFit === "contain" ? "object-contain" : "object-cover"}`}
+                  />
                 </div>
                 <div className="flex-1 space-y-2">
                   <div className="flex flex-wrap gap-2">
@@ -129,6 +136,9 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
                     {post.isUrgent && <Badge variant="urgent">{locale === "zh" ? "加急" : "Urgent"}</Badge>}
                   </div>
                   <h3 className="text-base font-semibold text-display">{title}</h3>
+                  {description ? (
+                    <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
+                  ) : null}
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                     <span>{priceLabel}</span>
                     <span>{formatCreated(post.createdAt)}</span>
@@ -148,7 +158,11 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
             >
               <div className={`bg-muted ${view === "large" ? "h-40" : "h-28"}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image} alt={post.title} className="h-full w-full object-cover" />
+                <img
+                  src={image}
+                  alt={post.title}
+                  className={`h-full w-full ${imageFit === "contain" ? "object-contain" : "object-cover"}`}
+                />
               </div>
               <div className="space-y-2 p-4">
                 <div className="flex flex-wrap gap-2">
@@ -159,6 +173,9 @@ export function PostListClient({ posts, locale }: PostListClientProps) {
                   {post.isUrgent && <Badge variant="urgent">{locale === "zh" ? "加急" : "Urgent"}</Badge>}
                 </div>
                 <h3 className="line-clamp-2 text-base font-semibold text-display">{title}</h3>
+                {description ? (
+                  <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
+                ) : null}
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>{priceLabel}</span>
                   <span>{formatCreated(post.createdAt)}</span>

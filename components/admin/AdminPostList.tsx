@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 type AdminPost = {
   id: string;
@@ -138,6 +139,13 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
               >
                 {t('common.delete')}
               </button>
+              <Link
+                href={`/${locale}/admin/posts/${post.id}`}
+                className="h-9 rounded-md border px-3 text-xs text-primary"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {t('common.edit')}
+              </Link>
             </div>
           </div>
         </div>

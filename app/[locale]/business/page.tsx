@@ -36,7 +36,7 @@ export default async function BusinessDirectoryPage({
       {posts.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('common.empty')}</p>
       ) : (
-        <PostListClient posts={posts} locale={locale} />
+        <PostListClient posts={posts} locale={locale} imageFit="contain" />
       )}
     </div>
   );

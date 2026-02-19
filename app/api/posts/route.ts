@@ -15,6 +15,9 @@ const payloadSchema = z.object({
   region: z.string().optional(),
   categoryId: z.string().min(1),
   imageUrls: z.array(z.string()).optional(),
+  wechat: z.string().optional(),
+  whatsapp: z.string().optional(),
+  phone: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -83,6 +86,17 @@ export async function POST(request: Request) {
           : undefined,
       },
     });
+
+    const contactUpdates: Record<string, string | null> = {};
+    if (data.wechat) contactUpdates.wechat = data.wechat;
+    if (data.whatsapp) contactUpdates.whatsapp = data.whatsapp;
+    if (data.phone) contactUpdates.phone = data.phone;
+    if (Object.keys(contactUpdates).length) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: contactUpdates,
+      });
+    }
 
     return NextResponse.json({ id: post.id });
   } catch (error) {

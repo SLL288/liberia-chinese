@@ -26,6 +26,9 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
     categoryId: '',
     city: '',
     region: '',
+    wechat: '',
+    whatsapp: '',
+    phone: '',
   });
   const [images, setImages] = useState<{ id: string; url: string; name: string }[]>([]);
   const router = useRouter();
@@ -63,6 +66,9 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
       categoryId: formState.categoryId,
       city: formState.city,
       region: formState.region,
+      wechat: formState.wechat,
+      whatsapp: formState.whatsapp,
+      phone: formState.phone,
       imageUrls: images.map((image) => image.url),
     };
 
@@ -227,10 +233,28 @@ export function PublishWizard({ locale, categories }: PublishWizardProps) {
       )}
 
       {step === 'contact' && (
-        <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-          {locale === 'zh'
-            ? '联系人信息使用你的账户资料（微信/WhatsApp/电话）。请在个人中心完善。'
-            : 'Contact info will use your profile details. Update them in your account.'}
+        <div className="grid gap-4 rounded-2xl border border-border bg-white p-6 md:grid-cols-2">
+          <Input
+            placeholder={locale === 'zh' ? '微信号' : 'WeChat'}
+            value={formState.wechat}
+            onChange={(e) => updateField('wechat', e.target.value)}
+          />
+          <Input
+            placeholder={locale === 'zh' ? 'WhatsApp' : 'WhatsApp'}
+            value={formState.whatsapp}
+            onChange={(e) => updateField('whatsapp', e.target.value)}
+          />
+          <Input
+            placeholder={locale === 'zh' ? '联系电话' : 'Phone'}
+            value={formState.phone}
+            onChange={(e) => updateField('phone', e.target.value)}
+            className="md:col-span-2"
+          />
+          <p className="text-xs text-muted-foreground md:col-span-2">
+            {locale === 'zh'
+              ? '这些联系方式会保存到你的账户资料，用于展示在帖子详情页。'
+              : 'These contact details will be saved to your profile and shown on the post.'}
+          </p>
         </div>
       )}
 
