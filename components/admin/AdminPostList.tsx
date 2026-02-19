@@ -8,6 +8,8 @@ type AdminPost = {
   id: string;
   title: string;
   status: string;
+  isFeatured?: boolean;
+  isTop?: boolean;
   category: { nameZh: string; nameEn: string };
 };
 
@@ -73,6 +75,16 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
     }
   };
 
+  const buttonClass = (active: boolean, variant: 'primary' | 'danger' | 'outline' = 'outline') => {
+    if (variant === 'primary') {
+      return `h-9 rounded-md px-3 text-xs ${active ? 'bg-primary text-white' : 'border border-border'}`;
+    }
+    if (variant === 'danger') {
+      return `h-9 rounded-md px-3 text-xs ${active ? 'bg-destructive text-white' : 'border border-border text-destructive'}`;
+    }
+    return `h-9 rounded-md border px-3 text-xs ${active ? 'border-primary text-primary' : ''}`;
+  };
+
   return (
     <div className="space-y-3">
       {rows.map((post) => (
@@ -86,7 +98,7 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                className="h-9 rounded-md bg-primary px-3 text-xs text-white"
+                className={buttonClass(post.status === 'ACTIVE', 'primary')}
                 type="button"
                 onClick={() => act(post, 'approve', 'ACTIVE')}
                 disabled={busyId === post.id}
@@ -94,7 +106,7 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
                 {locale === 'zh' ? '通过' : 'Approve'}
               </button>
               <button
-                className="h-9 rounded-md bg-destructive px-3 text-xs text-white"
+                className={buttonClass(post.status === 'BANNED', 'danger')}
                 type="button"
                 onClick={() => act(post, 'ban', 'BANNED')}
                 disabled={busyId === post.id}
@@ -102,7 +114,7 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
                 {locale === 'zh' ? '封禁' : 'Ban'}
               </button>
               <button
-                className="h-9 rounded-md border px-3 text-xs"
+                className={buttonClass(post.status !== 'ACTIVE')}
                 type="button"
                 onClick={() => act(post, post.status === 'ACTIVE' ? 'hide' : 'show', post.status === 'ACTIVE' ? 'BANNED' : 'ACTIVE')}
                 disabled={busyId === post.id}
@@ -116,7 +128,7 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
                   : 'Show'}
               </button>
               <button
-                className="h-9 rounded-md border px-3 text-xs"
+                className={buttonClass(Boolean(post.isFeatured))}
                 type="button"
                 onClick={() => act(post, 'feature')}
                 disabled={busyId === post.id}
@@ -124,7 +136,7 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
                 {locale === 'zh' ? '推荐' : 'Feature'}
               </button>
               <button
-                className="h-9 rounded-md border px-3 text-xs"
+                className={buttonClass(Boolean(post.isTop))}
                 type="button"
                 onClick={() => act(post, 'top')}
                 disabled={busyId === post.id}
@@ -132,7 +144,7 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
                 {locale === 'zh' ? '置顶' : 'Top'}
               </button>
               <button
-                className="h-9 rounded-md border px-3 text-xs text-destructive"
+                className={buttonClass(false, 'danger')}
                 type="button"
                 onClick={() => act(post, 'delete')}
                 disabled={busyId === post.id}
