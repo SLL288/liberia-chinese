@@ -141,7 +141,7 @@ export function AdminPostList({ posts, locale }: AdminPostListProps) {
               </button>
               <Link
                 href={`/${locale}/admin/posts/${post.id}`}
-                className="h-9 rounded-md border px-3 text-xs text-primary"
+                className="h-9 rounded-md border px-3 text-xs"
                 onClick={(event) => event.stopPropagation()}
               >
                 {t('common.edit')}

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -81,6 +82,7 @@ export default async function PostDetailPage({
     notFound();
   }
 
+  const title = locale === 'zh' ? post.titleZh || post.title : post.titleEn || post.title;
   const priceLabel = post.price
     ? formatCurrency(Number(post.price), post.currency, locale === 'zh' ? 'zh-CN' : 'en-US')
     : locale === 'zh'
@@ -90,6 +92,21 @@ export default async function PostDetailPage({
 
   return (
     <div className="container-shell space-y-8 py-10">
+      <div className="text-sm text-muted-foreground">
+        <Link href={`/${locale}`} className="hover:underline">
+          {locale === 'zh' ? '首页' : 'Home'}
+        </Link>
+        <span> · </span>
+        {post.category.slug === 'business' ? (
+          <Link href={`/${locale}/business`} className="hover:underline">
+            {locale === 'zh' ? '商家名录' : 'Business Directory'}
+          </Link>
+        ) : (
+          <Link href={`/${locale}/categories/${post.category.slug}`} className="hover:underline">
+            {locale === 'zh' ? post.category.nameZh : post.category.nameEn}
+          </Link>
+        )}
+      </div>
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-6">
           <div className="flex flex-wrap gap-2">
@@ -97,7 +114,7 @@ export default async function PostDetailPage({
             {post.isFeatured && <Badge variant="featured">{t('post.featured')}</Badge>}
             {post.isUrgent && <Badge variant="urgent">{t('post.urgent')}</Badge>}
           </div>
-          <h1 className="text-3xl font-semibold text-display">{post.title}</h1>
+          <h1 className="text-3xl font-semibold text-display">{title}</h1>
           <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
             <span>
               {t('common.publishedAt')}: {formatDate(post.createdAt, locale === 'zh' ? 'zh-CN' : 'en-US')}
@@ -106,7 +123,11 @@ export default async function PostDetailPage({
             <span>{t('common.city')}: {post.city ?? '—'}</span>
             <span>{t('common.region')}: {post.region ?? '—'}</span>
           </div>
-          <PostImageGallery images={post.images} title={post.title} />
+          <PostImageGallery images={post.images} title={title} />
+          <section className="space-y-2">
+            <h2 className="text-lg font-semibold">{t('common.details')}</h2>
+            <p className="text-sm text-muted-foreground">{post.description}</p>
+          </section>
           <Card>
             <CardContent className="space-y-4 p-6">
               <h2 className="text-lg font-semibold">{t('common.contact')}</h2>

@@ -94,6 +94,15 @@ export default async function NewsDetailPage({
 
   return (
     <div className="container-shell space-y-8 py-10">
+      <div className="text-sm text-muted-foreground">
+        <Link href={`/${locale}`} className="hover:underline">
+          {locale === 'zh' ? '首页' : 'Home'}
+        </Link>
+        <span> · </span>
+        <Link href={`/${locale}/news`} className="hover:underline">
+          {t('news.title')}
+        </Link>
+      </div>
       <div className="flex flex-col gap-3">
         <div className="text-sm text-muted-foreground">
           {item.source.name} · {dateValue.toISOString().slice(0, 10)}

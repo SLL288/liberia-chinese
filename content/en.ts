@@ -29,6 +29,7 @@ const en = {
     views: 'Views',
     publishedAt: 'Published',
     contact: 'Contact',
+    details: 'Details',
     view: 'View',
     viewLarge: 'Large',
     viewSmall: 'Small',

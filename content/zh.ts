@@ -29,6 +29,7 @@ const zh = {
     views: '浏览量',
     publishedAt: '发布时间',
     contact: '联系方式',
+    details: '详情',
     view: '显示方式',
     viewLarge: '大图',
     viewSmall: '小图',
