@@ -32,20 +32,9 @@ export async function generateMetadata({
   const image = rawImage && !isDataUrl(rawImage)
     ? await absoluteUrl(rawImage)
     : await absoluteUrl('/og/default-post.jpg');
-  const priceLabel = post.price
-    ? formatCurrency(Number(post.price), post.currency, locale === 'zh' ? 'zh-CN' : 'en-US')
-    : locale === 'zh'
-    ? '面议'
-    : 'Negotiable';
-  const location = [post.city, post.region].filter(Boolean).join(' ');
-  const descBase = `${priceLabel}${location ? ` · ${location}` : ''} · ${post.description}`;
-  const description = clampDescription(descBase, locale === 'zh' ? 100 : 160);
+  const description = clampDescription(post.description || '', locale === 'zh' ? 100 : 160);
   const url = `${await getSiteUrl()}/${locale}/posts/${post.id}`;
-  const ogImage = await absoluteUrl(
-    `/api/og?type=post&title=${encodeURIComponent(title)}&price=${encodeURIComponent(
-      priceLabel
-    )}&city=${encodeURIComponent(location)}`
-  );
+  const ogImage = await absoluteUrl(`/api/og?type=post&title=${encodeURIComponent(title)}`);
 
   return {
     title,
@@ -140,9 +129,18 @@ export default async function PostDetailPage({
             <CardContent className="space-y-4 p-6">
               <h2 className="text-lg font-semibold">{t('common.contact')}</h2>
               <div className="grid gap-2 text-sm text-muted-foreground">
-                <span>{t('post.contactWechat')}: {post.user.wechat ?? '—'}</span>
-                <span>{t('post.contactWhatsapp')}: {post.user.whatsapp ?? '—'}</span>
-                <span>{t('post.contactPhone')}: {post.user.phone ?? '—'}</span>
+                {post.user.wechat ? (
+                  <span>{t('post.contactWechat')}: {post.user.wechat}</span>
+                ) : null}
+                {post.user.whatsapp ? (
+                  <span>{t('post.contactWhatsapp')}: {post.user.whatsapp}</span>
+                ) : null}
+                {post.user.phone ? (
+                  <span>{t('post.contactPhone')}: {post.user.phone}</span>
+                ) : null}
+                {!post.user.wechat && !post.user.whatsapp && !post.user.phone ? (
+                  <span>—</span>
+                ) : null}
               </div>
               <div className="flex flex-wrap gap-3">
                 <Button variant="outline">{t('post.report')}</Button>
